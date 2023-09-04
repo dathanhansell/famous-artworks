@@ -24,6 +24,7 @@ function App() {
               <ArtworkList
                 onArtworkClick={handleArtworkClick}
                 onDeleteArtwork={() => setSelectedArtwork(null)}
+                selectedArtwork={selectedArtwork}
               />
             </div>
           </div>

@@ -50,12 +50,14 @@ class ArtworkList extends React.Component {
   };
   render() {
     const { artworks } = this.state;
+    const { selectedArtwork } = this.props;
     return (
       <div>
         <h2>List of Artworks</h2>
         <ListGroup className="mb-2">
               <ListGroupItem
                 variant="primary"
+                style={{ backgroundColor: !selectedArtwork ? '#DDDDDD' : ''}}
                 onClick={() => this.props.onArtworkClick(null)}
               ><h3>New Artwork</h3></ListGroupItem>
             </ListGroup>
@@ -66,6 +68,7 @@ class ArtworkList extends React.Component {
             <ListGroup className="mb-2" key={artwork.title}>
               <ListGroupItem
                 variant="primary"
+                style={{ backgroundColor: selectedArtwork && selectedArtwork.id === artwork.id ? '#DDDDDD' : ''}}
                 onClick={() => this.props.onArtworkClick(artwork)}
               >
                 <h3>Title: {artwork.title}</h3>
