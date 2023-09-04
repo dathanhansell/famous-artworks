@@ -16,7 +16,7 @@ These instructions will get you a copy of the project up and running on your loc
 Clone the repository on your local machine:
 
 ```bash
-git clone [repository_url]
+git clone https://github.com/dathanhansell/famous-artworks
 ```
 Navigate to the project directory:
 
