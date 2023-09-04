@@ -6,6 +6,22 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.container {
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.content {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 2em;
+}
+
+.artwork-form, .artwork-list {
+ margin-top: 2em;
+ flex: 1;
+ max-width: 45%;
+}
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

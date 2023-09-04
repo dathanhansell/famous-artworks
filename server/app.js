@@ -10,10 +10,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 db.serialize(() => {
-  db.run("CREATE TABLE artworks (name TEXT, description TEXT)");
+  db.run("CREATE TABLE artworks (artist TEXT, title TEXT, dateOfCompletion TEXT, country TEXT, style TEXT, location TEXT)");
 
-  let stmt = db.prepare("INSERT INTO artworks VALUES (?,?)");
-  stmt.run("Mona Lisa", "A portrait by Leonardo da Vinci");
+  let stmt = db.prepare("INSERT INTO artworks VALUES (?,?,?,?,?,?)");
+  stmt.run("Leonardo da Vinci", "Mona Lisa", "1503-06", "Italy", "Renaissance", "Louvre Museum, Paris");
   stmt.finalize();
 });
 
@@ -27,12 +27,12 @@ app.get("/artworks", (req, res) => {
 });
 
 app.post("/artworks", (req, res) => {
-  if (!req.body.name || !req.body.description) {
+  if (!req.body.artist || !req.body.title || !req.body.dateOfCompletion || !req.body.country || !req.body.style || !req.body.location) {
     return res.sendStatus(400);
   }
 
-  let stmt = db.prepare("INSERT INTO artworks VALUES (?,?)");
-  stmt.run(req.body.name, req.body.description, (err) => {
+  let stmt = db.prepare("INSERT INTO artworks VALUES (?,?,?,?,?,?)");
+  stmt.run(req.body.artist, req.body.title, req.body.dateOfCompletion, req.body.country, req.body.style, req.body.location, (err) => {
     if (err) {
       return console.error(err.message);
     }
