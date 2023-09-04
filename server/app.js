@@ -10,11 +10,43 @@ app.use(cors());
 app.use(bodyParser.json());
 
 db.serialize(() => {
-  db.run("CREATE TABLE artworks (artist TEXT, title TEXT, dateOfCompletion TEXT, country TEXT, style TEXT, location TEXT)");
+  db.run("CREATE TABLE artworks (id INTEGER PRIMARY KEY AUTOINCREMENT, artist TEXT, title TEXT, dateOfCompletion TEXT, country TEXT, style TEXT, location TEXT)");
 
-  let stmt = db.prepare("INSERT INTO artworks VALUES (?,?,?,?,?,?)");
+  let stmt = db.prepare("INSERT INTO artworks (artist, title, dateOfCompletion, country, style, location) VALUES (?,?,?,?,?,?)");
   stmt.run("Leonardo da Vinci", "Mona Lisa", "1503-06", "Italy", "Renaissance", "Louvre Museum, Paris");
   stmt.finalize();
+});
+app.delete('/artworks/:id', (req, res) => {
+  const id = req.params.id;
+
+  let stmt = db.prepare("DELETE FROM artworks WHERE id = ?");
+
+  stmt.run(id, (err) => {
+    if (err) {
+      return console.error(err.message);
+    }
+
+    res.send("Artwork deleted successfully!");
+  });
+});
+
+app.put("/artworks/:id", (req, res) => {
+  const id = req.params.id;
+  const update = req.body;
+
+  if (!update.artist || !update.title || !update.dateOfCompletion || !update.country || !update.style || !update.location) {
+    return res.sendStatus(400);
+  }
+
+  let stmt = db.prepare("UPDATE artworks SET artist = ?, title = ?, dateOfCompletion = ?, country = ?, style = ?, location = ? WHERE id = ?");
+
+  stmt.run(update.artist, update.title, update.dateOfCompletion, update.country, update.style, update.location, id, (err) => {
+    if (err) {
+      return console.error(err.message);
+    }
+  
+    res.send("Data updated successfully!");
+  });
 });
 
 app.get("/artworks", (req, res) => {
@@ -31,7 +63,7 @@ app.post("/artworks", (req, res) => {
     return res.sendStatus(400);
   }
 
-  let stmt = db.prepare("INSERT INTO artworks VALUES (?,?,?,?,?,?)");
+  let stmt = db.prepare("INSERT INTO artworks VALUES (NULL,?,?,?,?,?,?)");
   stmt.run(req.body.artist, req.body.title, req.body.dateOfCompletion, req.body.country, req.body.style, req.body.location, (err) => {
     if (err) {
       return console.error(err.message);
