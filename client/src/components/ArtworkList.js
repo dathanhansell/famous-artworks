@@ -30,7 +30,7 @@ class ArtworkList extends React.Component {
       .delete(`http://localhost:3001/artworks/${id}`)
       .then(() => {
         this.getArtworks();
-        this.props.onDeleteArtwork(); // Clean selection after deleting
+        this.props.onDeleteArtwork();
       })
       .catch((error) => {
         console.error(`Error deleting artwork: ${error}`);
