@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Grid } from "@mui/material";
+import RegisterForm from "./components/RegisterForm";
 import ArtworkForm from "./components/ArtworkForm";
 import ArtworkList from "./components/ArtworkList";
 
@@ -11,23 +13,23 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div className="container">
-          <div className="content">
-            <div className="artwork-form">
+          <Grid container className="content">
+            <Grid item lg={6} className="artwork-form">
               <h1>{selectedArtwork ? "Update Artwork" : "Add Artwork"}</h1>
               <ArtworkForm
                 selectedArtwork={selectedArtwork}
                 onArtworkUpdated={handleArtworkClick}
               />
-            </div>
-            <div className="artwork-list">
+            </Grid>
+            <Grid item lg={6} className="artwork-list">
               <h1>Current Artwork</h1>
               <ArtworkList
                 onArtworkClick={handleArtworkClick}
                 onDeleteArtwork={() => setSelectedArtwork(null)}
                 selectedArtwork={selectedArtwork}
               />
-            </div>
-          </div>
+            </Grid>
+          </Grid>
         </div>
       </header>
     </div>

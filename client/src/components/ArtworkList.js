@@ -1,6 +1,13 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { List, ListItem, ListItemText, Button, Paper } from "@mui/material"; // Import Material-UI components
+import {
+  Grid,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  Paper,
+} from "@mui/material"; // Material UI
 
 class ArtworkList extends Component {
   constructor(props) {
