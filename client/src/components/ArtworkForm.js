@@ -1,36 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Button } from "@mui/material"; // Import Material-UI components
+import { TextField, Button } from "@mui/material";
 import axios from "axios";
 
 function ArtworkForm({ selectedArtwork, onArtworkUpdated }) {
-  const [artist, setArtist] = useState(
-    selectedArtwork ? selectedArtwork.artist : ""
-  );
   const [title, setTitle] = useState(
     selectedArtwork ? selectedArtwork.title : ""
   );
-  const [dateOfCompletion, setDateOfCompletion] = useState(
-    selectedArtwork ? selectedArtwork.dateOfCompletion : ""
-  );
-  const [country, setCountry] = useState(
-    selectedArtwork ? selectedArtwork.country : ""
-  );
-  const [style, setStyle] = useState(
-    selectedArtwork ? selectedArtwork.style : ""
-  );
-  const [location, setLocation] = useState(
-    selectedArtwork ? selectedArtwork.location : ""
+  const [year, setYear] = useState(selectedArtwork ? selectedArtwork.year : "");
+  const [medium, setMedium] = useState(
+    selectedArtwork ? selectedArtwork.medium : ""
   );
 
   useEffect(() => {
-    setArtist(selectedArtwork ? selectedArtwork.artist : "");
     setTitle(selectedArtwork ? selectedArtwork.title : "");
-    setDateOfCompletion(
-      selectedArtwork ? selectedArtwork.dateOfCompletion : ""
-    );
-    setCountry(selectedArtwork ? selectedArtwork.country : "");
-    setStyle(selectedArtwork ? selectedArtwork.style : "");
-    setLocation(selectedArtwork ? selectedArtwork.location : "");
+    setYear(selectedArtwork ? selectedArtwork.year : "");
+    setMedium(selectedArtwork ? selectedArtwork.medium : "");
   }, [selectedArtwork]);
 
   async function handleSubmit(event) {
@@ -41,12 +25,9 @@ function ArtworkForm({ selectedArtwork, onArtworkUpdated }) {
       : `http://localhost:3001/artworks`;
 
     const data = {
-      artist: artist,
       title: title,
-      dateOfCompletion: dateOfCompletion,
-      country: country,
-      style: style,
-      location: location,
+      year: year,
+      medium: medium,
     };
 
     try {
@@ -73,14 +54,6 @@ function ArtworkForm({ selectedArtwork, onArtworkUpdated }) {
   return (
     <form onSubmit={handleSubmit}>
       <TextField
-        label="Artist"
-        type="text"
-        value={artist}
-        onChange={(e) => setArtist(e.target.value)}
-        placeholder="Enter Artist Name"
-        required
-      />
-      <TextField
         label="Title of Artwork"
         type="text"
         value={title}
@@ -89,35 +62,19 @@ function ArtworkForm({ selectedArtwork, onArtworkUpdated }) {
         required
       />
       <TextField
-        label="Date of Completion"
+        label="Year of Creation"
         type="text"
-        value={dateOfCompletion}
-        onChange={(e) => setDateOfCompletion(e.target.value)}
-        placeholder="Enter Date of Completion"
+        value={year}
+        onChange={(e) => setYear(e.target.value)}
+        placeholder="Enter Year of Creation"
         required
       />
       <TextField
-        label="Country of Artist"
+        label="Medium"
         type="text"
-        value={country}
-        onChange={(e) => setCountry(e.target.value)}
-        placeholder="Enter Country of Artist"
-        required
-      />
-      <TextField
-        label="Style of Art"
-        type="text"
-        value={style}
-        onChange={(e) => setStyle(e.target.value)}
-        placeholder="Enter Style of Art"
-        required
-      />
-      <TextField
-        label="Current Location of Artwork"
-        type="text"
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
-        placeholder="Enter Current Location of Artwork"
+        value={medium}
+        onChange={(e) => setMedium(e.target.value)}
+        placeholder="Enter Medium"
         required
       />
       <Button variant="contained" color="primary" type="submit">

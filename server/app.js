@@ -26,28 +26,153 @@ db.serialize(() => {
     "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, name TEXT)"
   );
 
+  // Create artists table
+  db.run(
+    "CREATE TABLE artists (artist_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, birthdate TEXT, nationality TEXT)"
+  );
+
   // Create artworks table
   db.run(
-    "CREATE TABLE artworks (id INTEGER PRIMARY KEY AUTOINCREMENT, artist TEXT, title TEXT, dateOfCompletion TEXT, country TEXT, style TEXT, location TEXT)"
+    "CREATE TABLE artworks (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, year TEXT, medium TEXT)"
   );
 
-  // Insert SQL statement
-  let stmt = db.prepare(
-    "INSERT INTO artworks (artist, title, dateOfCompletion, country, style, location) VALUES (?,?,?,?,?,?)"
+  // Create art period table
+  db.run(
+    "CREATE TABLE art_period (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, start_year TEXT, end_year TEXT)"
   );
 
-  // Insert actual data values
-  stmt.run(
-    "Leonardo da Vinci",
-    "Mona Lisa",
-    "1503-06",
-    "Italy",
-    "Renaissance",
-    "Louvre Museum, Paris"
+  // Create museum table
+  db.run(
+    "CREATE TABLE museum (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, location TEXT)"
   );
 
-  // Commit statement
-  stmt.finalize();
+  // Create collector table
+  db.run(
+    "CREATE TABLE collector (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, country TEXT)"
+  );
+
+  // Create art style table
+  db.run(
+    "CREATE TABLE art_style (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"
+  );
+
+  // Create created_by table for many-to-many relationship between artists and artworks
+  db.run(
+    "CREATE TABLE created_by (artist_id INTEGER, artwork_id INTEGER, FOREIGN KEY(artist_id) REFERENCES artists(artist_id), FOREIGN KEY(artwork_id) REFERENCES artworks(id), PRIMARY KEY(artist_id, artwork_id))"
+  );
+
+  // Insert SQL statement for artists table
+  let artistStmt = db.prepare(
+    "INSERT INTO artists (name, birthdate, nationality) VALUES (?,?,?)"
+  );
+
+  // Insert data into artists table
+  artistStmt.run("Leonardo da Vinci", "April 15, 1452", "Italian");
+
+  // Commit artists statement
+  artistStmt.finalize();
+
+  // Insert SQL statement for artworks table
+  let artworkStmt = db.prepare(
+    "INSERT INTO artworks (title, year, medium) VALUES (?,?,?)"
+  );
+
+  // Insert data into artworks table
+  artworkStmt.run("Mona Lisa", "1503-06", "Oil on Panel");
+
+  // Commit artworks statement
+  artworkStmt.finalize();
+
+  // Insert SQL statement for created_by table (many-to-many relationship)
+  let created_byStmt = db.prepare(
+    "INSERT INTO created_by (artist_id, artwork_id) VALUES (?, ?)"
+  );
+
+  // Insert data into created_by table
+  created_byStmt.run(1, 1); // Assuming artist_id 1 and artwork_id 1 are related (Leonardo da Vinci created Mona Lisa)
+
+  // Commit created_by statement
+  created_byStmt.finalize();
+
+  // Create belongs_to table for one-to-one relationship between artworks and museums
+  db.run(
+    "CREATE TABLE belongs_to (artwork_id INTEGER, museum_id INTEGER, FOREIGN KEY(artwork_id) REFERENCES artworks(id), FOREIGN KEY(museum_id) REFERENCES museum(id), PRIMARY KEY(artwork_id))"
+  );
+
+  // Insert SQL statement for belongs_to table (one-to-one relationship)
+  let belongs_toStmt = db.prepare(
+    "INSERT INTO belongs_to (artwork_id, museum_id) VALUES (?, ?)"
+  );
+
+  // Insert data into belongs_to table
+  belongs_toStmt.run(1, 1); // Assuming artwork_id 1 and museum_id 1 are related
+
+  // Commit belongs_to statement
+  belongs_toStmt.finalize();
+
+  // Create included_in table for one-to-one relationship between artworks and art_period
+  db.run(
+    "CREATE TABLE included_in (artwork_id INTEGER, art_period_id INTEGER, FOREIGN KEY(artwork_id) REFERENCES artworks(id), FOREIGN KEY(art_period_id) REFERENCES art_period(id), PRIMARY KEY(artwork_id))"
+  );
+
+  // Insert SQL statement for included_in table (one-to-one relationship)
+  let included_inStmt = db.prepare(
+    "INSERT INTO included_in (artwork_id, art_period_id) VALUES (?, ?)"
+  );
+
+  // Insert data into included_in table
+  included_inStmt.run(1, 1); // Assuming artwork_id 1 is included in art_period_id 1
+
+  // Commit included_in statement
+  included_inStmt.finalize();
+
+  // Create lived_in table for many-to-many relationship between artists and art_period
+  db.run(
+    "CREATE TABLE lived_in (artist_id INTEGER, art_period_id INTEGER, FOREIGN KEY(artist_id) REFERENCES artists(artist_id), FOREIGN KEY(art_period_id) REFERENCES art_period(id), PRIMARY KEY(artist_id, art_period_id))"
+  );
+
+  // Insert SQL statement for lived_in table (many-to-many relationship)
+  let lived_inStmt = db.prepare(
+    "INSERT INTO lived_in (artist_id, art_period_id) VALUES (?, ?)"
+  );
+
+  // Insert data into lived_in table
+  lived_inStmt.run(1, 1); // Assuming artist_id 1 lived in art_period_id 1
+
+  // Commit lived_in statement
+  lived_inStmt.finalize();
+
+  // Create owned_by table for one-to-many relationship between artworks and collectors
+  db.run(
+    "CREATE TABLE owned_by (artwork_id INTEGER, collector_id INTEGER, FOREIGN KEY(artwork_id) REFERENCES artworks(id), FOREIGN KEY(collector_id) REFERENCES collector(id))"
+  );
+
+  // Insert SQL statement for owned_by table (one-to-many relationship)
+  let owned_byStmt = db.prepare(
+    "INSERT INTO owned_by (artwork_id, collector_id) VALUES (?, ?)"
+  );
+
+  // Insert data into owned_by table
+  owned_byStmt.run(1, 1); // Assuming artwork_id 1 is owned by collector_id 1
+
+  // Commit owned_by statement
+  owned_byStmt.finalize();
+
+  // Create falls_under table for one-to-many relationship between artworks and art_style
+  db.run(
+    "CREATE TABLE falls_under (artwork_id INTEGER, art_style_id INTEGER, FOREIGN KEY(artwork_id) REFERENCES artworks(id), FOREIGN KEY(art_style_id) REFERENCES art_style(id))"
+  );
+
+  // Insert SQL statement for falls_under table (one-to-many relationship)
+  let falls_underStmt = db.prepare(
+    "INSERT INTO falls_under (artwork_id, art_style_id) VALUES (?, ?)"
+  );
+
+  // Insert data into falls_under table
+  falls_underStmt.run(1, 1); // Assuming artwork_id 1 falls under art_style_id 1
+
+  // Commit falls_under statement
+  falls_underStmt.finalize();
 });
 
 // POST user register
@@ -133,37 +258,21 @@ app.put("/artworks/:id", (req, res) => {
   const id = req.params.id;
   const update = req.body;
 
-  if (
-    !update.artist ||
-    !update.title ||
-    !update.dateOfCompletion ||
-    !update.country ||
-    !update.style ||
-    !update.location
-  ) {
+  if (!update.title || !update.year || !update.medium) {
     return res.sendStatus(400);
   }
 
   let stmt = db.prepare(
-    "UPDATE artworks SET artist = ?, title = ?, dateOfCompletion = ?, country = ?, style = ?, location = ? WHERE id = ?"
+    "UPDATE artworks SET title = ?, year = ?, medium = ? WHERE id = ?"
   );
 
-  stmt.run(
-    update.artist,
-    update.title,
-    update.dateOfCompletion,
-    update.country,
-    update.style,
-    update.location,
-    id,
-    (err) => {
-      if (err) {
-        return console.error(err.message);
-      }
-
-      res.send("Data updated successfully!");
+  stmt.run(update.title, update.year, update.medium, id, (err) => {
+    if (err) {
+      return console.error(err.message);
     }
-  );
+
+    res.send("Data updated successfully!");
+  });
 });
 
 // GET all artworks
@@ -178,32 +287,19 @@ app.get("/artworks", (req, res) => {
 
 // POST artwork in artworks table
 app.post("/artworks", (req, res) => {
-  if (
-    !req.body.artist ||
-    !req.body.title ||
-    !req.body.dateOfCompletion ||
-    !req.body.country ||
-    !req.body.style ||
-    !req.body.location
-  ) {
+  if (!req.body.title || !req.body.year || !req.body.medium) {
     return res.sendStatus(400);
   }
 
-  let stmt = db.prepare("INSERT INTO artworks VALUES (NULL,?,?,?,?,?,?)");
-  stmt.run(
-    req.body.artist,
-    req.body.title,
-    req.body.dateOfCompletion,
-    req.body.country,
-    req.body.style,
-    req.body.location,
-    (err) => {
-      if (err) {
-        return console.error(err.message);
-      }
-      res.send("Data inserted successfully!");
-    }
+  let stmt = db.prepare(
+    "INSERT INTO artworks (title, year, medium) VALUES (?,?,?)"
   );
+  stmt.run(req.body.title, req.body.year, req.body.medium, (err) => {
+    if (err) {
+      return console.error(err.message);
+    }
+    res.send("Data inserted successfully!");
+  });
   stmt.finalize();
 });
 

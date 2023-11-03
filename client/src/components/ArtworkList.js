@@ -93,17 +93,8 @@ class ArtworkList extends Component {
               >
                 <ListItemText primary={<h3>Title: {artwork.title}</h3>} />
                 <ListItemText primary={`id: ${artwork.id}`} />
-                <ListItemText primary={`Artist: ${artwork.artist}`} />
-                <ListItemText
-                  primary={`Date of Completion: ${artwork.dateOfCompletion}`}
-                />
-                <ListItemText
-                  primary={`Country of Artist: ${artwork.country}`}
-                />
-                <ListItemText primary={`Style of Art: ${artwork.style}`} />
-                <ListItemText
-                  primary={`Current Location: ${artwork.location}`}
-                />
+                <ListItemText primary={`Year: ${artwork.year}`} />
+                <ListItemText primary={`Medium: ${artwork.medium}`} />
                 <Button onClick={() => this.deleteArtwork(artwork.id)}>
                   Delete
                 </Button>
