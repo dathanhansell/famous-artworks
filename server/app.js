@@ -19,8 +19,28 @@ app.use(
     saveUninitialized: true,
   })
 );
+const insertData = (stmt, values, tableName) => {
+  stmt.run(values, function(err) {
+    if (err) {
+      console.log(`Error inserting into ${tableName} table: `, err);
+    } else {
+      console.log(`Inserted ${this.changes} row(s) into ${tableName} table`);
+    }
+  });
+};
+
+const fetchLatest = (tableName, idName) => {
+  db.get(`SELECT * FROM ${tableName} ORDER BY ${idName} DESC LIMIT 1`, (err, row) => {
+    if (err) {
+      console.log("Error fetching last inserted row: ", err);
+    } else {
+      console.log("Last inserted row: ", row);
+    }
+  });
+};
 
 db.serialize(() => {
+  console.log("Starting database serialization...");
   // Create users table
   db.run(
     "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, name TEXT)"
@@ -66,22 +86,27 @@ db.serialize(() => {
     "INSERT INTO artists (name, birthdate, nationality) VALUES (?,?,?)"
   );
 
-  // Insert data into artists table
-  artistStmt.run("Leonardo da Vinci", "April 15, 1452", "Italian");
+  // Insert data into artists table and fetch latest inserted row
+
+  insertData(artistStmt, ["Leonardo da Vinci", "April 15, 1452", "Italian"], "artists");
+  fetchLatest("artists", "artist_id")
 
   // Commit artists statement
   artistStmt.finalize();
+
 
   // Insert SQL statement for artworks table
   let artworkStmt = db.prepare(
     "INSERT INTO artworks (title, year, medium) VALUES (?,?,?)"
   );
 
-  // Insert data into artworks table
-  artworkStmt.run("Mona Lisa", "1503-06", "Oil on Panel");
+  // Insert data into artworks table and fetch latest inserted row
+  insertData(artworkStmt, ["Mona Lisa", "1503-06", "Oil on Panel"], "artworks");
+  fetchLatest("artworks", "id")
 
   // Commit artworks statement
   artworkStmt.finalize();
+
 
   // Insert SQL statement for created_by table (many-to-many relationship)
   let created_byStmt = db.prepare(
@@ -89,8 +114,8 @@ db.serialize(() => {
   );
 
   // Insert data into created_by table
-  created_byStmt.run(1, 1); // Assuming artist_id 1 and artwork_id 1 are related (Leonardo da Vinci created Mona Lisa)
-
+  insertData(created_byStmt, [1, 1], "created_by"); // Assuming artist_id 1 and artwork_id 1 are related (Leonardo da Vinci created Mona Lisa)
+  fetchLatest("created_by", "artist_id")
   // Commit created_by statement
   created_byStmt.finalize();
 
@@ -105,7 +130,8 @@ db.serialize(() => {
   );
 
   // Insert data into belongs_to table
-  belongs_toStmt.run(1, 1); // Assuming artwork_id 1 and museum_id 1 are related
+  insertData(belongs_toStmt, [1, 1], "belongs_to");  //Assuming artwork_id 1 and museum_id 1 are related
+  fetchLatest("belongs_to", "museum_id") 
 
   // Commit belongs_to statement
   belongs_toStmt.finalize();
@@ -121,7 +147,8 @@ db.serialize(() => {
   );
 
   // Insert data into included_in table
-  included_inStmt.run(1, 1); // Assuming artwork_id 1 is included in art_period_id 1
+  insertData(included_inStmt, [1, 1], "included_in");  // Assuming artwork_id 1 is included in art_period_id 1
+  fetchLatest("included_in", "art_period_id") 
 
   // Commit included_in statement
   included_inStmt.finalize();
@@ -137,7 +164,8 @@ db.serialize(() => {
   );
 
   // Insert data into lived_in table
-  lived_inStmt.run(1, 1); // Assuming artist_id 1 lived in art_period_id 1
+  insertData(lived_inStmt, [1, 1], "lived_in");  // Assuming artist_id 1 lived in art_period_id 1
+  fetchLatest("lived_in", "art_period_id") 
 
   // Commit lived_in statement
   lived_inStmt.finalize();
@@ -153,7 +181,8 @@ db.serialize(() => {
   );
 
   // Insert data into owned_by table
-  owned_byStmt.run(1, 1); // Assuming artwork_id 1 is owned by collector_id 1
+  insertData(owned_byStmt, [1, 1], "owned_by");  // Assuming artwork_id 1 is owned by collector_id 1
+  fetchLatest("owned_by", "collector_id") 
 
   // Commit owned_by statement
   owned_byStmt.finalize();
@@ -169,7 +198,8 @@ db.serialize(() => {
   );
 
   // Insert data into falls_under table
-  falls_underStmt.run(1, 1); // Assuming artwork_id 1 falls under art_style_id 1
+  insertData(falls_underStmt, [1, 1], "falls_under");  // Assuming artwork_id 1 falls under art_style_id 1
+  fetchLatest("falls_under", "art_style_id")  
 
   // Commit falls_under statement
   falls_underStmt.finalize();
