@@ -4,7 +4,7 @@ To run, simply
 
 ```bash
 cd server
-node ./app.js
+node ./checkpoint2.js
 ```
 
 # Getting Started with Create React App
