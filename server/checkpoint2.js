@@ -26,6 +26,7 @@ const utils = {
           const stmt = db.prepare(`INSERT INTO ${table} (${columns.join(',')}) VALUES (${placeholders})`);
           
           stmt.run(values, function(err) {
+            console.log("insertIntoTable()");
             if (err) {
               throw err;
             }
@@ -47,6 +48,7 @@ const utils = {
             const sql = `SELECT * FROM ${table} WHERE id = ?`;
             
             db.get(sql, [values[index]], (err, row) => {
+
               if (err) {
                 throw err;
               }
@@ -67,6 +69,7 @@ const utils = {
         let placeholders = columns.map((col) => `${col} = ?`).join(',');
         const sql = `UPDATE ${table} SET ${placeholders} WHERE id = ?`;
         db.run(sql, [...values, id], function(err) {
+          console.log("updateTable()");
           if (err) {
             throw err;
           }
@@ -76,6 +79,7 @@ const utils = {
       deleteFromTable: (db, table, id) => {
         const sql = `DELETE FROM ${table} WHERE id = ?`;
         db.run(sql, [id], function(err) {
+          console.log("deleteFromTable()");
           if (err) {
             throw err;
           }
@@ -85,6 +89,7 @@ const utils = {
       deleteTable: (db, tableName) => {
         const sql = `DROP TABLE IF EXISTS ${tableName}`;
         db.run(sql, [], (err) => {
+          console.log("deleteTable()");
           if (err) {
             throw err;
           }
@@ -94,6 +99,7 @@ const utils = {
       getIdFromAttribute: (db, table, attributeName, attribute, callback) => {
         const sql = `SELECT id FROM ${table} WHERE ${attributeName} = ?`;
         db.get(sql, [attribute], (err, row) => {
+          console.log("getIdFromAttribute()");
           if (err) {
             throw err;
           }
@@ -105,8 +111,10 @@ const utils = {
         });
       },
       sortByParameter: (db, table, column, order = 'ASC') => {
+      
       const sql = `SELECT * FROM ${table} ORDER BY ${column} ${order}`;
       db.all(sql, [], (err, rows) => {
+        console.log("sortByParameter()");
           if (err) {
               throw err;
           }
@@ -114,8 +122,10 @@ const utils = {
       });
       },
       countRows: (db, table) => {
+      
       const sql = `SELECT COUNT(*) as count FROM ${table}`;
       db.get(sql, [], (err, row) => {
+        console.log("countRows()");
           if (err) {
               throw err;
           }
@@ -123,8 +133,10 @@ const utils = {
       });
       },
       searchByKeyword: (db, table, column, keyword) => {
+      
       const sql = `SELECT * FROM ${table} WHERE ${column} LIKE ?`;
       db.all(sql, [`%${keyword}%`], (err, rows) => {
+        console.log("searchByKeyword()");
           if (err) {
               throw err;
           }
@@ -132,8 +144,10 @@ const utils = {
       });
       },
       selectByRange: (db, table, column, min, max) => {
+      
       const sql = `SELECT * FROM ${table} WHERE ${column} BETWEEN ? AND ?`;
       db.all(sql, [min, max], (err, rows) => {
+        console.log("selectByRange()");
           if (err) {
               throw err;
           }
@@ -142,8 +156,10 @@ const utils = {
       },
 
       selectWithLimit: (db, table, limit) => {
+      
       const sql = `SELECT * FROM ${table} LIMIT ?`;
       db.all(sql, [limit], (err, rows) => {
+        console.log("selectWithLimit()");
           if (err) {
               throw err;
           }
@@ -151,8 +167,10 @@ const utils = {
       });
       },
       fetchDataWithOffset: (db, table, offset, limit) => {
+      console.log("fetchDataWithOffset()");
       const sql = `SELECT * FROM ${table} LIMIT ? OFFSET ?`;
       db.all(sql, [limit, offset], (err, rows) => {
+        console.log("fetchDataWithOffset()");
           if (err) {
               throw err;
           }
@@ -160,9 +178,11 @@ const utils = {
       });
       },
       updateMultipleFields: (db, table, data, where) => {
+      
       const setString = Object.keys(data).map(key => `${key} = ?`).join(', ');
       const sql = `UPDATE ${table} SET ${setString} WHERE ${where}`;
         db.run(sql, Object.values(data), function(err) {
+          console.log("updateMultipleFields()");
             if (err) {
                 throw err;
             }
@@ -170,8 +190,10 @@ const utils = {
         });
       },
       deleteByCondition: (db, table, condition) => {
+      
       const sql = `DELETE FROM ${table} WHERE ${condition}`;
       db.run(sql, function(err) {
+        console.log("deleteByCondition()");
           if (err) {
               throw err;
           }
@@ -179,8 +201,10 @@ const utils = {
       });
       },
       joinTwoTables: (db, table1, table2, commonColumn) => {
+      
       const sql = `SELECT * FROM ${table1} JOIN ${table2} ON ${table1}.${commonColumn} = ${table2}.${commonColumn}`;
       db.all(sql, [], (err, rows) => {
+        console.log("joinTwoTables()");
           if (err) {
               throw err;
           }
@@ -188,17 +212,21 @@ const utils = {
       });
       },
       countRowsWithValue: (db, table, column, value) => {
+        
         const sql = `SELECT COUNT(*) as count FROM ${table} WHERE ${column} = ?`;
         db.get(sql, [value], (err, row) => {
+          console.log("countRowsWithValue()");
           if (err) {
             throw err;
           }
           console.log(`Number of rows in ${table} where ${column} is ${value}: ${row.count}`,"\n");
         });
       },
-      updateColumnById: (db, table, column, value, id) => {
+      updateById: (db, table, column, value, id) => {
+        
         const sql = `UPDATE ${table} SET ${column} = ? WHERE id = ?`;
         db.run(sql, [value, id], function(err) {
+          console.log("updateById()");
           if (err) {
             throw err;
           }
@@ -206,8 +234,10 @@ const utils = {
         });
       },
       getMaxValue: (db, table, column) => {
+        
         const sql = `SELECT MAX(${column}) as max FROM ${table}`;
         db.get(sql, [], (err, row) => {
+          console.log("getMaxValue()");
           if (err) {
             throw err;
           }
@@ -215,8 +245,10 @@ const utils = {
         });
       },
       getMinValue: (db, table, column) => {
+        
         const sql = `SELECT MIN(${column}) as min FROM ${table}`;
         db.get(sql, [], (err, row) => {
+          console.log("getMinValue()");
           if (err) {
             throw err;
           }
@@ -224,8 +256,10 @@ const utils = {
         });
       },
       getAvgValue: (db, table, column) => {
+        
         const sql = `SELECT AVG(${column}) as avg FROM ${table}`;
         db.get(sql, [], (err, row) => {
+          console.log("getAvgValue()");
           if (err) {
             throw err;
           }
@@ -319,7 +353,7 @@ db.serialize(() => {
   //updating multiple fields
   utils.updateMultipleFields(db, 'artists', {name: 'John Doe', birthdate: '2000-01-01'}, 'id = 1');
   //update column by id
-  utils.updateColumnById(db, 'artists', 'name', 'Jane Doe', 2);
+  utils.updateById(db, 'artists', 'name', 'Jane Doe', 2);
   //sorting artists by name
   utils.sortByParameter(db, 'artists', 'name');
   //searching for artists with name containing 'do'
