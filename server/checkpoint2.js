@@ -312,14 +312,6 @@ db.serialize(() => {
   utils.insertIntoTable(db, 'falls_under', ['artwork_id', 'art_style_id'], [1, 1], "artwork_id");
   utils.insertIntoTable(db, 'falls_under', ['artwork_id', 'art_style_id'], [2, 2], "artwork_id");
   utils.insertIntoTable(db, 'falls_under', ['artwork_id', 'art_style_id'], [3, 3], "artwork_id");
-  //finding artist with Spanish nationality and deleting the row
-  utils.getIdFromAttribute(db, 'artists','nationality', 'Spanish', function(id) {
-    utils.deleteFromTable(db, 'artists', id);
-  });
-  //finding artist with name Leonardo da Vinci and deleting the row
-  utils.getIdFromAttribute(db, 'artists','name', 'Leonardo da Vinci', function(id) {
-    utils.deleteFromTable(db, 'artists', id);
-  });
   //finding all art periods that started between 1880 and 2000
   utils.selectByRange(db, 'art_periods', 'start_year', 1880, 2000);
   //counting the number of artists
@@ -348,6 +340,14 @@ db.serialize(() => {
   utils.getMinValue(db, 'artworks', 'year');
   //get avg value of year in artworks
   utils.getAvgValue(db, 'artworks', 'year');
+    //finding artist with Spanish nationality and deleting the row
+    utils.getIdFromAttribute(db, 'artists','nationality', 'Spanish', function(id) {
+      utils.deleteFromTable(db, 'artists', id);
+    });
+    //finding artist with name Leonardo da Vinci and deleting the row
+    utils.getIdFromAttribute(db, 'artists','name', 'Leonardo da Vinci', function(id) {
+      utils.deleteFromTable(db, 'artists', id);
+    });
   //delete artists where id = 1
   utils.deleteByCondition(db, 'artists', 'id = 1');
 });
