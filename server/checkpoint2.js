@@ -18,7 +18,7 @@ const utils = {
         if (err) {
           throw err;
         }
-        console.log("Last inserted row: ", row);
+        console.log("Last inserted row: ", row,"\n");
       });
     },
         insertIntoTable(db, table, columns, values, idName = "id") {
@@ -54,6 +54,7 @@ const utils = {
               }
               console.log(`${table}: `, row);
             });
+            
           });
         },
       selectById: (db, table, id) => {
@@ -167,7 +168,6 @@ const utils = {
       });
       },
       fetchDataWithOffset: (db, table, offset, limit) => {
-      console.log("fetchDataWithOffset()");
       const sql = `SELECT * FROM ${table} LIMIT ? OFFSET ?`;
       db.all(sql, [limit, offset], (err, rows) => {
         console.log("fetchDataWithOffset()");
