@@ -11,25 +11,49 @@ try {
 const db = new sqlite3.Database("./data.sqlite");
 
 const utils = {
-      selectLatest: (db, tableName, idName) => {
-        const sql = `SELECT * FROM ${tableName} ORDER BY ${idName} DESC LIMIT 1`;
-        db.get(sql, [], (err, row) => {
-          if (err) {
-            throw err;
+    selectLatest(db, table, idName) {
+      const sql = `SELECT * FROM ${table} ORDER BY ${idName} DESC LIMIT 1`;
+      
+      db.get(sql, [], (err, row) => {
+        if (err) {
+          throw err;
+        }
+        console.log("Last inserted row: ", row);
+      });
+    },
+        insertIntoTable(db, table, columns, values, idName = "id") {
+          const placeholders = columns.map(() => '?').join(',');
+          const stmt = db.prepare(`INSERT INTO ${table} (${columns.join(',')}) VALUES (${placeholders})`);
+          
+          stmt.run(values, function(err) {
+            if (err) {
+              throw err;
+            }
+            console.log(`Inserted ${this.changes} row(s) into ${table} table`);
+          });
+          
+          if (values.length === 2 && typeof values[0] === 'number' && typeof values[1] === 'number') {
+            this.selectLinkedRows(db, columns, values);
+          } else {
+            this.selectLatest(db, table, idName);
           }
-          console.log("Last inserted row: ", row,"\n");
-        });
-      },
-      insertIntoTable: (db, table, columns, values, idName="id") => {
-        let placeholders = columns.map(() => '?').join(',');
-        const sql = `INSERT INTO ${table} (${columns.join(',')}) VALUES (${placeholders})`;
-        db.run(sql, values, function(err) {
-          if (err) {
-            throw err;
-          }
-          console.log(`Inserted ${this.changes} row(s) into ${table} table`,"\n");
-        });
-      },
+          
+          stmt.finalize();
+        },
+        
+        selectLinkedRows(db, columns, values) {
+          columns.forEach((column, index) => {
+            const table = column.replace(/_id$/, 's');
+            const sql = `SELECT * FROM ${table} WHERE id = ?`;
+            
+            db.get(sql, [values[index]], (err, row) => {
+              if (err) {
+                throw err;
+              }
+              console.log(`${table}: `, row);
+            });
+          });
+        },
       selectById: (db, table, id) => {
         const sql = `SELECT * FROM ${table} WHERE id = ?`;
         db.get(sql, [id], (err, row) => {
