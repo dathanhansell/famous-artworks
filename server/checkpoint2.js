@@ -11,6 +11,39 @@ try {
 const db = new sqlite3.Database("./data.sqlite");
 
 const utils = {
+  selectedAllRelated (db, relationTable, idColumn, id, artistTable, artPeriodTable) {
+    const sql = `SELECT a.name as artist_name, a.birthdate, a.nationality, b.name as period_name, b.start_year, b.end_year, c.artist_id, c.art_period_id 
+                FROM ${relationTable} as c 
+                LEFT JOIN ${artistTable} as a ON c.artist_id = a.id 
+                LEFT JOIN ${artPeriodTable} as b ON c.art_period_id = b.id 
+                WHERE ${idColumn} = ?`;
+    db.all(sql, [id], (err, rows) => {
+      if (err) {
+        throw err;
+      }
+      console.log(`Related records in ${relationTable} where ${idColumn} is ${id}:`);
+      if (rows.length > 0) {
+        const artPeriodData = {
+          id: rows[0].art_period_id,
+          name: rows[0].period_name,
+          start_year: rows[0].start_year,
+          end_year: rows[0].end_year
+        };
+        console.log(artPeriodData);
+      }
+      rows.forEach(row => {
+        const artistData = {
+          id: row.artist_id,
+          name: row.artist_name,
+          birthdate: row.birthdate,
+          nationality: row.nationality
+        };
+        console.log(artistData);
+      });
+    });
+  },
+  
+  
     selectLatest(db, table, idName) {
       const sql = `SELECT * FROM ${table} ORDER BY ${idName} DESC LIMIT 1`;
       
@@ -21,42 +54,42 @@ const utils = {
         console.log("Last inserted row: ", row,"\n");
       });
     },
-        insertIntoTable(db, table, columns, values, idName = "id") {
-          const placeholders = columns.map(() => '?').join(',');
-          const stmt = db.prepare(`INSERT INTO ${table} (${columns.join(',')}) VALUES (${placeholders})`);
+    insertIntoTable(db, table, columns, values, idName = "id") {
+      const placeholders = columns.map(() => '?').join(',');
+      const stmt = db.prepare(`INSERT INTO ${table} (${columns.join(',')}) VALUES (${placeholders})`);
           
-          stmt.run(values, function(err) {
-            console.log("insertIntoTable()");
-            if (err) {
-              throw err;
-            }
-            console.log(`Inserted ${this.changes} row(s) into ${table} table`);
-          });
+      stmt.run(values, function(err) {
+        console.log("insertIntoTable()");
+        if (err) {
+          throw err;
+        }
+        console.log(`Inserted ${this.changes} row(s) into ${table} table`);
+      });
           
-          if (values.length === 2 && typeof values[0] === 'number' && typeof values[1] === 'number') {
-            this.selectLinkedRows(db, columns, values);
-          } else {
-            this.selectLatest(db, table, idName);
-          }
+      if (values.length === 2 && typeof values[0] === 'number' && typeof values[1] === 'number') {
+        this.selectLinkedRows(db, columns, values);
+      } else {
+        this.selectLatest(db, table, idName);
+      }
           
-          stmt.finalize();
-        },
+        stmt.finalize();
+    },
         
-        selectLinkedRows(db, columns, values) {
-          columns.forEach((column, index) => {
-            const table = column.replace(/_id$/, 's');
-            const sql = `SELECT * FROM ${table} WHERE id = ?`;
+    selectLinkedRows(db, columns, values) {
+      columns.forEach((column, index) => {
+        const table = column.replace(/_id$/, 's');
+        const sql = `SELECT * FROM ${table} WHERE id = ?`;
             
-            db.get(sql, [values[index]], (err, row) => {
+        db.get(sql, [values[index]], (err, row) => {
 
-              if (err) {
-                throw err;
-              }
-              console.log(`${table}: `, row);
-            });
+          if (err) {
+            throw err;
+          }
+          console.log(`${table}: `, row);
+        });
             
-          });
-        },
+      });
+    },
       selectById: (db, table, id) => {
         const sql = `SELECT * FROM ${table} WHERE id = ?`;
         db.get(sql, [id], (err, row) => {
@@ -297,6 +330,7 @@ db.serialize(() => {
   utils.insertIntoTable(db, 'users', ['username', 'password', 'name'], ['janedoe', 'password456', 'Jane Doe']);
   //inserting artist data
   utils.insertIntoTable(db, 'artists', ['name', 'birthdate', 'nationality'], ["Leanardo do Vanci", "1452-04-15", "Italian"], "id");
+  
   utils.insertIntoTable(db, 'artists', ['name', 'birthdate', 'nationality'], ["Pablo Picasso", "1881-10-25", "Spanish"], "id");
   utils.insertIntoTable(db, 'artists', ['name', 'birthdate', 'nationality'], ["Georges Seurat", "1859-12-02", "French"], "id");
   //inserting artwork data
@@ -336,7 +370,7 @@ db.serialize(() => {
   utils.insertIntoTable(db, 'included_in', ['artwork_id', 'art_period_id'], [3, 3], "artwork_id");
   //inserting lived in data
   utils.insertIntoTable(db, 'lived_in', ['artist_id', 'art_period_id'], [1, 1], "artist_id");
-  utils.insertIntoTable(db, 'lived_in', ['artist_id', 'art_period_id'], [2, 2], "artist_id");
+  utils.insertIntoTable(db, 'lived_in', ['artist_id', 'art_period_id'], [2, 1], "artist_id");
   utils.insertIntoTable(db, 'lived_in', ['artist_id', 'art_period_id'], [3, 3], "artist_id");
   //inserting owned by data
   utils.insertIntoTable(db, 'owned_by', ['artwork_id', 'collector_id'], [1, 1], "artwork_id");
@@ -383,5 +417,9 @@ db.serialize(() => {
     utils.deleteFromTable(db, 'artists', id);
   });
   //delete artists where id = 1
-  utils.deleteByCondition(db, 'artists', 'id = 1');
+  
+
+  utils.selectedAllRelated(db, 'lived_in', 'art_period_id', 1, 'artists', 'art_periods');
+
+
 });
