@@ -8,6 +8,7 @@ const joinTables = (primaryTable, secondaryTable, relationTable, primaryKey, sec
       INNER JOIN ${relationTable} ON ${primaryTable}.id = ${relationTable}.${primaryKey}
       WHERE ${relationTable}.${secondaryKey} = ?
     `;
+    console.log(query);
 
         db.all(query, primaryId, (err, results) => {
             if (err) {

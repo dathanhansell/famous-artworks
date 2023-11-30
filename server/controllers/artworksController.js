@@ -4,7 +4,8 @@ const db = require("../models/db");
 const getArtworksByArtist = async (req, res) => {
     const artistId = req.params.artistId;
     try {
-        const artworks = await joinTables('artworks', 'artists', 'created_by', 'artist_id', 'artwork_id', artistId);
+        const artworks = await joinTables('artworks', 'artists', 'created_by', 'artwork_id','artist_id', artistId);
+        console.log(artworks);
         res.send(artworks);
     } catch (err) {
         res.status(500).send(err.message);
