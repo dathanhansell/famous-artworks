@@ -335,31 +335,37 @@ db.serialize(() => {
   utils.insertIntoTable(db, 'artists', ['name', 'birthdate', 'nationality'], ["Georges Seurat", "1859-12-02", "French"], "id");
   //inserting artwork data
   utils.insertIntoTable(db, 'artworks', ['title', 'year', 'medium'], ["Mona Lisa", "1503", "Oil on Panel"], "id");
-  utils.insertIntoTable(db, 'artworks', ['title', 'year', 'medium'], ["A Sunday Afternoon on the Island of La Grande Jatte", "1884", "Oil on canvas"], "id");
   utils.insertIntoTable(db, 'artworks', ['title', 'year', 'medium'], ["Girl with a Mandolin", "1910", "Oil on canvas"], "id");
+  utils.insertIntoTable(db, 'artworks', ['title', 'year', 'medium'], ["A Sunday Afternoon on the Island of La Grande Jatte", "1884", "Oil on canvas"], "id");
+  utils.insertIntoTable(db, 'artworks', ['title', 'year', 'medium'], ["The Old Guitarist", "1904", "Oil on canvas"], "id");
   //inserting art period data
   utils.insertIntoTable(db, 'art_periods', ['name', 'start_year', 'end_year'], ["Renaissance", "1350", "1600"], "id");
   utils.insertIntoTable(db, 'art_periods', ['name', 'start_year', 'end_year'], ["Post-Impressionism", "1885", "1910"]);
   utils.insertIntoTable(db, 'art_periods', ['name', 'start_year', 'end_year'], ["Cubism", "1907", "1914"]);
+  utils.insertIntoTable(db, 'art_periods', ['name', 'start_year', 'end_year'], ["Expressionism", "1912", "1920"]);
   //inserting museum data
   utils.insertIntoTable(db, 'museums', ['name', 'location'], ["The Louvre", "Paris, France"], "id");
-  utils.insertIntoTable(db, 'museums', ['name', 'location'], ["The Art Institute of Chicago", "Chicago, USA"], "id");
+
   utils.insertIntoTable(db, 'museums', ['name', 'location'], ["museums of Modern Art", "New York, USA"], "id");
+  utils.insertIntoTable(db, 'museums', ['name', 'location'], ["The Art Institute of Chicago", "Chicago, USA"], "id");
   //correcting mistake by updating museum name
-  utils.updateTable(db, 'museums', ['name'], ['Museum of Modern Art'], 3);
+  utils.updateTable(db, 'museums', ['name'], ['Museum of Modern Art'], 2);
   //inserting collector data
   utils.insertIntoTable(db, 'collectors', ['name', 'country'], ["John Doe", "USA"], "id");
   utils.insertIntoTable(db, 'collectors', ['name', 'country'], ["Jane Doe", "USA"], "id");
   //inserting art style data
   utils.insertIntoTable(db, 'art_styles', ['name'], ['Renaissance']);
-  utils.insertIntoTable(db, 'art_styles', ['name'], ['Cubism']);
+
   utils.insertIntoTable(db, 'art_styles', ['name'], ['Pointillism']);
+  utils.insertIntoTable(db, 'art_styles', ['name'], ['Cubism']);
   //updating artist data
   utils.updateTable(db, 'artists', ['name'], ['Leonardo da Vinci'], 1);
-  utils.updateTable(db, 'artists', ['birthdate'], ['2023-04-01'], 2);
+  //utils.updateTable(db, 'artists', ['birthdate'], ['2023-04-01'], 2);
   //inserting created by data
+  utils.insertIntoTable(db, 'created_by', ['artist_id', 'artwork_id'], [1, 1], "artist_id");
   utils.insertIntoTable(db, 'created_by', ['artist_id', 'artwork_id'], [2, 2], "artist_id");
   utils.insertIntoTable(db, 'created_by', ['artist_id', 'artwork_id'], [3, 3], "artist_id");
+  utils.insertIntoTable(db, 'created_by', ['artist_id', 'artwork_id'], [2, 4], "artist_id");
   //inserting belongs to data
   utils.insertIntoTable(db, 'belongs_to', ['artwork_id', 'museum_id'], [1, 1], "artwork_id");
   utils.insertIntoTable(db, 'belongs_to', ['artwork_id', 'museum_id'], [2, 2], "artwork_id");
@@ -372,6 +378,7 @@ db.serialize(() => {
   utils.insertIntoTable(db, 'lived_in', ['artist_id', 'art_period_id'], [1, 1], "artist_id");
   utils.insertIntoTable(db, 'lived_in', ['artist_id', 'art_period_id'], [2, 1], "artist_id");
   utils.insertIntoTable(db, 'lived_in', ['artist_id', 'art_period_id'], [3, 3], "artist_id");
+  utils.insertIntoTable(db, 'lived_in', ['artist_id', 'art_period_id'], [3, 4], "artist_id");
   //inserting owned by data
   utils.insertIntoTable(db, 'owned_by', ['artwork_id', 'collector_id'], [1, 1], "artwork_id");
   utils.insertIntoTable(db, 'owned_by', ['artwork_id', 'collector_id'], [2, 2], "artwork_id");
@@ -380,6 +387,7 @@ db.serialize(() => {
   utils.insertIntoTable(db, 'falls_under', ['artwork_id', 'art_style_id'], [1, 1], "artwork_id");
   utils.insertIntoTable(db, 'falls_under', ['artwork_id', 'art_style_id'], [2, 2], "artwork_id");
   utils.insertIntoTable(db, 'falls_under', ['artwork_id', 'art_style_id'], [3, 3], "artwork_id");
+  /*
   //finding all art periods that started between 1880 and 2000
   utils.selectByRange(db, 'art_periods', 'start_year', 1880, 2000);
   //counting the number of artists
@@ -421,5 +429,5 @@ db.serialize(() => {
 
   utils.selectedAllRelated(db, 'lived_in', 'art_period_id', 1, 'artists', 'art_periods');
 
-
+*/
 });

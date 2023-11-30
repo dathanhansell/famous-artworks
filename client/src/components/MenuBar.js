@@ -37,6 +37,9 @@ export default function ButtonAppBar() {
         <ListItem button key="Test Page" component={Link} to="/test">
           <ListItemText primary="Test Page" />
         </ListItem>
+        <ListItem button key="Artworks By Artist" component={Link} to="/artonartist">
+          <ListItemText primary="Artworks By Artist" />
+        </ListItem>
       </List>
     </Box>
   );
