@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from 'axios';
 
 import ItemList from "../components/ItemList";
+import SearchBar from "../components/SearchBar";
 
 function TestPage() {
   const [items, setItems] = useState([]);
@@ -27,6 +28,7 @@ function TestPage() {
   return (
     <div>
       <h1>Items</h1>
+      <SearchBar/>
       <ItemList
         items={items}
         selectedItem={selectedItem}

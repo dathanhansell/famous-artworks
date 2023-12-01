@@ -1,7 +1,20 @@
 const { joinTables } = require('../utils/queryHelper');
 const db = require("../models/db");
 
-
+const getMuseumsLike = async (req, res) => {
+    let searchText = req.query.text;
+    console.log('searchText', searchText);  // log the search text
+        db.all(`
+            SELECT *
+            FROM museums
+            WHERE name LIKE ?
+        `, `%${searchText}%`, (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            res.send(rows);
+        });
+};
 const getAllMuseums = (req, res) => {
     db.all("SELECT * FROM museums", [], (err, rows) => {
         if (err) {
@@ -68,5 +81,6 @@ module.exports = {
     createMuseum,
     deleteMuseum,
     updateMuseum,
+    getMuseumsLike,
 
 };

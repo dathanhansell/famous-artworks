@@ -5,7 +5,7 @@ import TestPage from "./page/testPage";
 import LoginForm from "./components/LoginForm";
 import HomePage from "./page/Home";
 import ArtworksPage from "./page/artworksOnArtist";
-
+import MuseumsPage from "./page/artistsOnMuseums";  
 function App() {
   return (
     <Router>
@@ -16,6 +16,7 @@ function App() {
         <Route path="/artonartist" element={ <ArtworksPage /> } />
         <Route path="/login" element={ <LoginForm /> } />
         <Route path="/register" element={ <RegisterForm /> } />
+        <Route path="/artonmuseum" element={ <MuseumsPage /> } />
       </Routes>
     </Router>
   );

@@ -1,25 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
-import SelectItem from '../components/SelectItem';
 import ItemList from '../components/ItemList';
+import SearchBar from '../components/SearchBar';
 
 function ArtworksPage() {
-    const [artists, setArtists] = useState([]);
-    const [selectedArtist, setSelectedArtist] = useState(null);
     const [artworks, setArtworks] = useState([]);
 
-    useEffect(() => {
-        axios.get('http://localhost:3001/artists/')
-            .then(response => {
-                setArtists(response.data);
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
-    }, []);
-
-    const handleArtistSelect = (artist) => {
-        setSelectedArtist(artist);
+    const handleSuggestionSelect = (artist) => {
         axios.get(`http://localhost:3001/artworks/artists/${artist.id}`)
             .then(response => {
                 setArtworks(response.data);
@@ -31,7 +18,7 @@ function ArtworksPage() {
 
     return (
         <div>
-            <SelectItem items={artists} onSelect={handleArtistSelect} />
+            <SearchBar onSuggestionSelected={handleSuggestionSelect} apiUrl={`/artists/search`} placeholder={"Search Artists..."}/>
             <ItemList items={artworks} onItemSelect={() => { }} onDeleteItem={() => { }} />
         </div>
     );
