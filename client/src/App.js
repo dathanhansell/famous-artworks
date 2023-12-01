@@ -10,6 +10,7 @@ function App() {
   return (
     <Router>
       <ButtonAppBar/>
+      <div className="app-content">
       <Routes>
         <Route path="/" element={ <HomePage /> } />
         <Route path="/test" element={ <TestPage /> } />
@@ -18,7 +19,9 @@ function App() {
         <Route path="/register" element={ <RegisterForm /> } />
         <Route path="/artonmuseum" element={ <MuseumsPage /> } />
       </Routes>
+      </div>
     </Router>
+    
   );
 }
 

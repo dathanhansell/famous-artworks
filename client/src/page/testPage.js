@@ -1,42 +1,34 @@
-import React, { useState, useEffect } from "react";
-import axios from 'axios';
-
-import ItemList from "../components/ItemList";
-import SearchBar from "../components/SearchBar";
+import React, { useState } from "react";
+import { Grid } from "@mui/material";
+import ArtworkForm from "../components/ArtworkForm";
+import ArtworkList from "../components/ArtworkList";
 
 function TestPage() {
-  const [items, setItems] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedArtwork, setSelectedArtwork] = useState(null);
 
-  useEffect(() => {
-    // Fetch data from API
-    axios.get('http://localhost:3001/artworks/')
-      .then(response => {
-        setItems(response.data);
-      })
-      .catch(error => {
-        console.error('There was an error!', error);
-      });
-  }, []);
+    const handleArtworkClick = (artwork) => setSelectedArtwork(artwork);
 
-  const handleItemClick = (item) => setSelectedItem(item);
-
-  const deleteItem = (itemId) => {
-    // delete item logic here
-  }
-
-  return (
-    <div>
-      <h1>Items</h1>
-      <SearchBar/>
-      <ItemList
-        items={items}
-        selectedItem={selectedItem}
-        onItemSelect={handleItemClick}
-        onDeleteItem={deleteItem}
-      />
-    </div>
-  );
+    return (
+        <div className="container">
+            <Grid container className="content">
+                <Grid item lg={6} className="artwork-form">
+                    <h1>{selectedArtwork ? "Update Artwork" : "Add Artwork"}</h1>
+                    <ArtworkForm
+                        selectedArtwork={selectedArtwork}
+                        onArtworkUpdated={handleArtworkClick}
+                    />
+                </Grid>
+                <Grid item lg={6} className="artwork-list">
+                    <h1>Current Artwork</h1>
+                    <ArtworkList
+                        onArtworkClick={handleArtworkClick}
+                        onDeleteArtwork={() => setSelectedArtwork(null)}
+                        selectedArtwork={selectedArtwork}
+                    />
+                </Grid>
+            </Grid>
+        </div>
+    );
 }
 
 export default TestPage;

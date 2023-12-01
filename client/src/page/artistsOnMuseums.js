@@ -6,7 +6,7 @@ import ItemList from '../components/ItemList';
 function MuseumsPage() {
     const [museums, setMuseums] = useState([]);
     const [selectedMuseum, setSelectedMuseum] = useState(null);
-    const [artworks, setArtworks] = useState([]);
+    const [artists, setArtists] = useState([]);
 
     useEffect(() => {
         axios.get('http://localhost:3001/muesums/')
@@ -20,9 +20,9 @@ function MuseumsPage() {
 
     const handleSuggestionSelect = (museum) => {
         setSelectedMuseum(museum);
-        axios.get(`http://localhost:3001/artworks/museums/${museum.id}`)
+        axios.get(`http://localhost:3001/artists/museums/${museum.id}`)
             .then(response => {
-                setArtworks(response.data);
+                setArtists(response.data);
             })
             .catch(error => {
                 console.error('There was an error!', error);
@@ -32,7 +32,7 @@ function MuseumsPage() {
     return (
         <div>
             <SearchBar onSuggestionSelected={handleSuggestionSelect} apiUrl={`/museums/search`} placeholder={"Search Mueums..."}/>
-            <ItemList items={artworks} onItemSelect={() => { }} onDeleteItem={() => { }} />
+            <ItemList items={artists} onItemSelect={() => { }} onDeleteItem={() => { }} />
         </div>
     );
 }

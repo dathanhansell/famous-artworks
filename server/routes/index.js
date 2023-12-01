@@ -8,6 +8,7 @@ const artPeriodsRoutes = require('./art_periods');
 const museumsRoutes = require('./museums');
 const collectorsRoutes = require('./collectors');
 const artStylesRoutes = require('./art_styles');
+const linkedRoutes = require('./linked');
 
 router.use(authRoutes);
 router.use(artistsRoutes);
@@ -16,5 +17,6 @@ router.use(artPeriodsRoutes);
 router.use(museumsRoutes);
 router.use(collectorsRoutes);
 router.use(artStylesRoutes);
+router.use(linkedRoutes);
 
 module.exports = router;

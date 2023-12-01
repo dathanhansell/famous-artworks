@@ -1,0 +1,32 @@
+.home {
+    text-align: center;
+  }
+  
+  .home__title {
+    margin: 30px 0;
+  }
+  
+  .home__grid {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+  
+  .home__grid__item {
+    width: 45%;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .home__grid__item ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .home__grid__item ul li:not(:last-child) {
+    margin-bottom: 10px;
+  }
+  

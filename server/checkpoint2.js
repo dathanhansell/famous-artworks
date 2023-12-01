@@ -370,6 +370,7 @@ db.serialize(() => {
   utils.insertIntoTable(db, 'belongs_to', ['artwork_id', 'museum_id'], [1, 1], "artwork_id");
   utils.insertIntoTable(db, 'belongs_to', ['artwork_id', 'museum_id'], [2, 2], "artwork_id");
   utils.insertIntoTable(db, 'belongs_to', ['artwork_id', 'museum_id'], [3, 3], "artwork_id");
+  utils.insertIntoTable(db, 'belongs_to', ['artwork_id', 'museum_id'], [4, 1], "artwork_id");
   //inserting included in data
   utils.insertIntoTable(db, 'included_in', ['artwork_id', 'art_period_id'], [1, 1], "artwork_id");
   utils.insertIntoTable(db, 'included_in', ['artwork_id', 'art_period_id'], [2, 2], "artwork_id");

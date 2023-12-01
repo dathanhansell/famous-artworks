@@ -1,35 +1,40 @@
-import React, { useState } from "react";
-import { Grid } from "@mui/material";
-import ArtworkForm from "../components/ArtworkForm";
-import ArtworkList from "../components/ArtworkList";
-
-
+import React from 'react';
+import { Link } from 'react-router-dom';
+import './Home.css';
 
 function HomePage() {
-    const [selectedArtwork, setSelectedArtwork] = useState(null);
-
-    const handleArtworkClick = (artwork) => setSelectedArtwork(artwork);
-
     return (
-        <div className="container">
-            <Grid container className="content">
-                <Grid item lg={6} className="artwork-form">
-                    <h1>{selectedArtwork ? "Update Artwork" : "Add Artwork"}</h1>
-                    <ArtworkForm
-                        selectedArtwork={selectedArtwork}
-                        onArtworkUpdated={handleArtworkClick}
-                    />
-                </Grid>
-                <Grid item lg={6} className="artwork-list">
-                    <h1>Current Artwork</h1>
-                    <ArtworkList
-                        onArtworkClick={handleArtworkClick}
-                        onDeleteArtwork={() => setSelectedArtwork(null)}
-                        selectedArtwork={selectedArtwork}
-                    />
-                </Grid>
-            </Grid>
+        <div className="home">
+            <h1 className="home__title">Famous Artworks</h1>
+            <div className="home__grid">
+                <div className="home__grid__item">
+                    <h2>Scrum Operations</h2>
+                    <ul>
+                        <li><Link to="/test">Add, Update, Remove Artworks</Link></li>
+                    </ul>
+                </div>
+                <div className="home__grid__item">
+                    <h2>Direct Relations</h2>
+                    <ul>
+                        <li><Link to="/artonartist">All Artworks From Artist</Link></li>
+                    </ul>
+                </div>
+                <div className="home__grid__item">
+                    <h2>Indirect Relations</h2>
+                    <ul>
+                        <li><Link to="/artonmuseum">Artists Exhibited in a Museum</Link></li>
+                    </ul>
+                </div>
+                <div className="home__grid__item">
+                    <h2>Auth</h2>
+                    <ul>
+                        <li><Link to="/login">Login</Link></li>
+                        <li><Link to="/register">Register</Link></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     );
 }
+
 export default HomePage;
