@@ -71,6 +71,7 @@ class ArtworkList extends Component {
           artworks.map((artwork) => (
             <List
               style={{
+                padding: 0,
                 boxShadow: "none",
                 borderRadius: 50,
                 border: "0.5px solid #ede7e8",
@@ -85,6 +86,7 @@ class ArtworkList extends Component {
                     selectedArtwork && selectedArtwork.id === artwork.id
                       ? "#DDDDDD"
                       : "",
+                  borderRadius: 50,
                 }}
                 onClick={() => this.props.onArtworkClick(artwork)}
               >

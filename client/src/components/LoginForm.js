@@ -22,22 +22,38 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <form
+      style={{
+        display: "flex",
+        flexFlow: "column",
+        margin: 25,
+        gap: 8,
+        width: "25%",
+        border: "0.5px solid lightgray",
+        borderRadius: 10,
+        padding: 25,
+      }}
+      onSubmit={handleLogin}
+    >
       <TextField
-        variant="outlined"
+        variant="filled"
         type="text"
         label="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
       <TextField
-        variant="outlined"
+        variant="filled"
         type="password"
         label="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <Button variant="outlined" type="submit">
+      <Button
+        style={{ borderRadius: 25, backgroundColor: "#dcdcf3" }}
+        color="primary"
+        type="submit"
+      >
         Login
       </Button>
     </form>
