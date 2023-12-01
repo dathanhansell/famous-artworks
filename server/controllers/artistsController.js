@@ -1,79 +1,24 @@
-const { joinTables } = require('../utils/queryHelper');
 const db = require("../models/db");
+const { createRecord, deleteRecord, updateRecord, getAllRecords,getRecordsLike } = require("../utils/queryHelper");
 
 const getArtistsLike = async (req, res) => {
-    let searchText = req.query.text;
-    console.log('searchText', searchText);  // log the search text
-        db.all(`
-            SELECT *
-            FROM artists
-            WHERE name LIKE ?
-        `, `%${searchText}%`, (err, rows) => {
-            if (err) {
-                throw err;
-            }
-            res.send(rows);
-        });
+    getRecordsLike('artists', req, res);
 };
+
 const getAllArtists = (req, res) => {
-    db.all("SELECT * FROM Artists", [], (err, rows) => {
-        if (err) {
-            throw err;
-        }
-        res.send(rows);
-    });
+    getAllRecords('artists', req, res);
 };
 
 const createArtist = (req, res) => {
-    if (!req.body.title || !req.body.year || !req.body.medium) {
-        return res.sendStatus(400);
-    }
-
-    let stmt = db.prepare(
-        "INSERT INTO Artists (title, year, medium) VALUES (?,?,?)"
-    );
-    stmt.run(req.body.title, req.body.year, req.body.medium, (err) => {
-        if (err) {
-            return console.error(err.message);
-        }
-        res.send("Data inserted successfully!");
-    });
-    stmt.finalize();
+    createRecord('artists', { title: req.body.title, year: req.body.year, medium: req.body.medium }, req, res);
 };
 
 const deleteArtist = (req, res) => {
-    const id = req.params.id;
-
-    let stmt = db.prepare("DELETE FROM Artists WHERE id = ?");
-
-    stmt.run(id, (err) => {
-        if (err) {
-            return console.error(err.message);
-        }
-
-        res.send("Artist deleted successfully!");
-    });
+    deleteRecord('artists', req.params.id, req, res);
 };
 
 const updateArtist = (req, res) => {
-    const id = req.params.id;
-    const update = req.body;
-
-    if (!update.title || !update.year || !update.medium) {
-        return res.sendStatus(400);
-    }
-
-    let stmt = db.prepare(
-        "UPDATE Artists SET title = ?, year = ?, medium = ? WHERE id = ?"
-    );
-
-    stmt.run(update.title, update.year, update.medium, id, (err) => {
-        if (err) {
-            return console.error(err.message);
-        }
-
-        res.send("Data updated successfully!");
-    });
+    updateRecord('artists', { title: req.body.title, year: req.body.year, medium: req.body.medium }, req.params.id, req, res);
 };
 
 module.exports = {
@@ -82,5 +27,4 @@ module.exports = {
     deleteArtist,
     updateArtist,
     getArtistsLike,
-
 };

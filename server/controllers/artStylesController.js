@@ -1,66 +1,20 @@
-const { joinTables } = require('../utils/queryHelper');
 const db = require("../models/db");
-
+const { createRecord, deleteRecord, updateRecord, getAllRecords } = require("../utils/queryHelper");
 
 const getAllStyles = (req, res) => {
-    db.all("SELECT * FROM art_styles", [], (err, rows) => {
-        if (err) {
-            throw err;
-        }
-        res.send(rows);
-    });
+    getAllRecords('art_styles', req, res);
 };
 
 const createStyle = (req, res) => {
-    if (!req.body.name) {
-        return res.sendStatus(400);
-    }
-
-    let stmt = db.prepare(
-        "INSERT INTO art_styles (name) VALUES (?)"
-    );
-    stmt.run(req.body.name, (err) => {
-        if (err) {
-            return console.error(err.message);
-        }
-        res.send("Data inserted successfully!");
-    });
-    stmt.finalize();
+    createRecord('art_styles', { name: req.body.name }, req, res);
 };
 
 const deleteStyle = (req, res) => {
-    const id = req.params.id;
-
-    let stmt = db.prepare("DELETE FROM art_styles WHERE id = ?");
-
-    stmt.run(id, (err) => {
-        if (err) {
-            return console.error(err.message);
-        }
-
-        res.send("Styles deleted successfully!");
-    });
+    deleteRecord('art_styles', req.params.id, req, res);
 };
 
 const updateStyle = (req, res) => {
-    const id = req.params.id;
-    const update = req.body;
-
-    if (!update.name ) {
-        return res.sendStatus(400);
-    }
-
-    let stmt = db.prepare(
-        "UPDATE art_styles SET name = ? WHERE id = ?"
-    );
-
-    stmt.run(update.name, id, (err) => {
-        if (err) {
-            return console.error(err.message);
-        }
-
-        res.send("Data updated successfully!");
-    });
+    updateRecord('art_styles', { name: req.body.name }, req.params.id, req, res);
 };
 
 module.exports = {
@@ -68,5 +22,4 @@ module.exports = {
     createStyle,
     deleteStyle,
     updateStyle,
-
 };

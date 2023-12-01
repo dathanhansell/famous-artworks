@@ -20,6 +20,28 @@ const joinTwoTables = (primaryTable, secondaryTable, relationTable,  primaryId) 
         });
     });
 };
+const createRecord = (tableName, fields, req, res) => {
+    const fieldNames = Object.keys(fields);
+    const fieldValues = Object.values(fields);
+    
+    // Check if all required fields are provided
+    for (let fieldName of fieldNames) {
+        if (!req.body[fieldName]) {
+            return res.sendStatus(400);
+        }
+    }
+
+    let placeholders = fieldNames.map(() => '?').join(',');
+    let stmt = db.prepare(`INSERT INTO ${tableName} (${fieldNames.join(',')}) VALUES (${placeholders})`);
+    stmt.run(...fieldValues, (err) => {
+        if (err) {
+            return console.error(err.message);
+        }
+        res.send("Data inserted successfully!");
+    });
+    stmt.finalize();
+};
+
 
 const joinThreeTables = (primaryTable, secondaryTable, middleTable, relationTable1, relationTable2, secondaryId) => {
     return new Promise((resolve, reject) => {
@@ -64,6 +86,37 @@ const getItemsByParameter = async (req, res,table1, table2, relation1, relation2
         res.status(500).send(err.message);
     }
 };
+const deleteRecord = (tableName, id, req, res) => {
+    let stmt = db.prepare(`DELETE FROM ${tableName} WHERE id = ?`);
+    stmt.run(id, (err) => {
+        if (err) {
+            return console.error(err.message);
+        }
+        res.send("Record deleted successfully!");
+    });
+};
+
+const updateRecord = (tableName, fields, id, req, res) => {
+    const fieldNames = Object.keys(fields);
+    const fieldValues = Object.values(fields);
+
+    // Check if all required fields are provided
+    for (let fieldName of fieldNames) {
+        if (req.body[fieldName] === undefined) {
+            return res.sendStatus(400);
+        }
+    }
+
+    let assignments = fieldNames.map((name) => `${name} = ?`).join(',');
+    let stmt = db.prepare(`UPDATE ${tableName} SET ${assignments} WHERE id = ?`);
+    
+    stmt.run(...fieldValues, id, (err) => {
+        if (err) {
+            return console.error(err.message);
+        }
+        res.send("Data updated successfully!");
+    });
+};
 
 
 function tableToID(str) {
@@ -76,10 +129,38 @@ function removeTrailingS(str) {
 function tableToID(str) {
     return removeTrailingS(str) + '_id';
 };
+const getAllRecords = (tableName, res) => {
+    db.all(`SELECT * FROM ${tableName}`, [], (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.send(rows);
+    });
+};
+const getRecordsLike = async (tableName, req, res) => {
+    let searchText = req.query.text;
+    console.log('searchText', searchText);
+    db.all(`
+        SELECT *
+        FROM ${tableName}
+        WHERE name LIKE ?
+    `, `%${searchText}%`, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.send(rows);
+    });
+};
+
 
 module.exports = {
     joinTwoTables,
     joinThreeTables,
     getItemsByParameter,
     removeTrailingS,
+    createRecord,
+    deleteRecord,
+    updateRecord,
+    getAllRecords,
+    getRecordsLike,
 };
