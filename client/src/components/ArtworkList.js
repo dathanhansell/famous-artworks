@@ -7,7 +7,9 @@ import {
   ListItemText,
   Button,
   Paper,
+  Fab,
 } from "@mui/material"; // Material UI
+import AddIcon from "@mui/icons-material/Add";
 
 class ArtworkList extends Component {
   constructor(props) {
@@ -61,28 +63,23 @@ class ArtworkList extends Component {
     const { artworks } = this.state;
     const { selectedArtwork } = this.props;
     return (
-      <div>
-        <h2>List of Artworks</h2>
-        <List component={Paper} className="mb-2">
-          <ListItem
-            button
-            variant="primary"
-            style={{
-              backgroundColor: !selectedArtwork ? "#DDDDDD" : "",
-            }}
-            onClick={() => this.props.onArtworkClick(null)}
-          >
-            <ListItemText primary={<h3>New Artwork</h3>} />
-          </ListItem>
-        </List>
+      <div style={{ display: "flex", flexFlow: "column", gap: 8, padding: 10 }}>
+        <h1>List of Artworks</h1>
         {artworks.length === 0 ? (
           <p>No Artworks Found</p>
         ) : (
           artworks.map((artwork) => (
-            <List key={artwork.title} component={Paper} className="mb-2">
+            <List
+              style={{
+                boxShadow: "none",
+                borderRadius: 50,
+                border: "0.5px solid #ede7e8",
+              }}
+              key={artwork.title}
+              component={Paper}
+              className="mb-2"
+            >
               <ListItem
-                button
-                variant="primary"
                 style={{
                   backgroundColor:
                     selectedArtwork && selectedArtwork.id === artwork.id
@@ -102,6 +99,14 @@ class ArtworkList extends Component {
             </List>
           ))
         )}
+        <Fab
+          style={{ margin: 10, alignSelf: "flex-end" }}
+          color="primary"
+          aria-label="add"
+          onClick={() => this.props.onArtworkClick(null)}
+        >
+          <AddIcon />
+        </Fab>
       </div>
     );
   }

@@ -52,32 +52,44 @@ function ArtworkForm({ selectedArtwork, onArtworkUpdated }) {
     selectedArtwork === null ? "Add Artwork" : "Update Artwork";
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      style={{
+        display: "flex",
+        flexFlow: "column",
+        margin: 25,
+        gap: 8,
+      }}
+      onSubmit={handleSubmit}
+    >
       <TextField
         label="Title of Artwork"
         type="text"
         value={title}
+        variant="filled"
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Enter Title of Artwork"
         required
       />
       <TextField
         label="Year of Creation"
         type="text"
         value={year}
+        variant="filled"
         onChange={(e) => setYear(e.target.value)}
-        placeholder="Enter Year of Creation"
         required
       />
       <TextField
         label="Medium"
         type="text"
         value={medium}
+        variant="filled"
         onChange={(e) => setMedium(e.target.value)}
-        placeholder="Enter Medium"
         required
       />
-      <Button variant="contained" color="primary" type="submit">
+      <Button
+        style={{ borderRadius: 25, backgroundColor: "#dcdcf3" }}
+        color="primary"
+        type="submit"
+      >
         {buttonText}
       </Button>
     </form>
