@@ -41,8 +41,6 @@ const getArtistsByMuseum = async (req, res) => {
     getItemsByParameter(req, res,'artists', 'museums', 'created_by', 'belongs_to',"artworks");
 };
 
-
-
 // Museums
 const getMuseumsByArtist = async (req, res) => {
     getItemsByParameter(req, res,'museums', 'artists', 'created_by', 'belongs_to','artworks');
