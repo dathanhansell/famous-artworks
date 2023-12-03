@@ -1,14 +1,17 @@
-import React, { useState } from "react";
-import { List, ListItem, ListItemText, Button, Paper } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from "@mui/material";
+import {DeleteButton} from "./DeleteButton";
 
-function ItemList({ items, selectedItem, onItemSelect, onDeleteItem, displayFields }) {
+function ItemList({ items = [], selectedItem,setItems, onItemSelect, displayFields }) {
     const [sortField, setSortField] = useState(null);
     const [sortDirection, setSortDirection] = useState('asc');
+    const [displayFieldsState, setDisplayFieldsState] = useState(displayFields);
 
-    // If displayFields is not provided, get all the keys from the first item
-    if (!displayFields && items.length > 0) {
-        displayFields = Object.keys(items[0]);
-    }
+    useEffect(() => {
+        if (!displayFields && items.length > 0) {
+            setDisplayFieldsState(Object.keys(items[0]));
+        }
+    }, [displayFields, items]);
 
     const sortedItems = [...items].sort((a, b) => {
         if (!sortField) return 0;
@@ -24,41 +27,54 @@ function ItemList({ items, selectedItem, onItemSelect, onDeleteItem, displayFiel
             setSortField(field);
             setSortDirection('asc');
         }
-    }
+    };
+    const handleItemDeleted = (id) => {
+        const updatedItems = items.filter(item => item.id !== id);
+        setItems(updatedItems);
+    };
 
     return (
-        <div>
-            <h2>List of Items</h2>
-            <div>
-                {displayFields.map(field => (
-                    <Button key={field} onClick={() => handleSort(field)}>
-                        {field.charAt(0).toUpperCase() + field.slice(1)}
-                        {sortField === field && (sortDirection === 'asc' ? '▲' : '▼')}
-                    </Button>
-                ))}
-            </div>
-            {sortedItems.length === 0 ? (
-                <p>No Items Found</p>
-            ) : (
-                sortedItems.map((item, index) => (
-                    <List key={index} component={Paper} className="mb-2">
-                        <ListItem
-                            button
-                            variant="primary"
-                            style={{
-                                backgroundColor: selectedItem && selectedItem.id === item.id ? "#DDDDDD" : "",
-                            }}
-                            onClick={() => onItemSelect(item)}
-                        >
-                            {displayFields.map(field => (
-                                <ListItemText key={field} primary={`${field.charAt(0).toUpperCase() + field.slice(1)}: ${item[field]}`} />
-                            ))}
-                            <Button onClick={() => onDeleteItem(item.id)}>Delete</Button>
-                        </ListItem>
-                    </List>
-                ))
-            )}
-        </div>
+        <TableContainer component={Paper}>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        {displayFieldsState && displayFieldsState.map(field => (
+                            <TableCell key={field} onClick={() => handleSort(field)}>
+                                {field.charAt(0).toUpperCase() + field.slice(1)}
+                                {sortField === field && (sortDirection === 'asc' ? '▲' : '▼')}
+                            </TableCell>
+                        ))}
+                        <TableCell>Action</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {sortedItems.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={displayFieldsState ? displayFieldsState.length + 1 : 1}>No Items Found</TableCell>
+
+                        </TableRow>
+                    ) : (
+                        sortedItems.map((item, index) => (
+                            <TableRow
+                                key={index}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                style={{
+                                    backgroundColor: selectedItem && selectedItem.id === item.id ? "#DDDDDD" : "",
+                                }}
+                                onClick={() => onItemSelect(item)}
+                            >
+                                {displayFieldsState && displayFieldsState.map(field => (
+                                    <TableCell key={field}>{item[field]}</TableCell>
+                                ))}
+                                <TableCell>
+                                    <DeleteButton id={item.id} endpoint="http://localhost:3001/artworks" onDeleted={handleItemDeleted} />
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    )}
+                </TableBody>
+            </Table>
+        </TableContainer>
     );
 }
 

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { debounce } from 'lodash';
 import './SearchBar.css';
 
-const SearchBar = ({ onSuggestionSelected, apiUrl, placeholder }) => {
+const SearchBar = ({ onSuggestionSelected }) => {
     const [searchText, setSearchText] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -12,7 +12,7 @@ const SearchBar = ({ onSuggestionSelected, apiUrl, placeholder }) => {
     const loadSuggestions = useRef(debounce((searchText) => {
         if (searchText.length > 2) {
             setIsLoading(true);
-            axios.get(`${apiUrl}?text=${searchText}`)
+            axios.get(`/artists/search?text=${searchText}`)
                 .then(res => {
                     if (Array.isArray(res.data)) {
                         setSuggestions(res.data);
@@ -54,7 +54,7 @@ const SearchBar = ({ onSuggestionSelected, apiUrl, placeholder }) => {
                 onChange={handleChange}
                 onFocus={() => setIsActive(true)}
                 onBlur={() => setIsActive(false)}
-                placeholder={placeholder}
+                placeholder="Search artists..."
                 className="search-input"
             />
             {isLoading && isActive ? <div className="loading">Loading...</div> : null}

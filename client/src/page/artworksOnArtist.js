@@ -1,25 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
-import ItemList from '../components/ItemList';
-import SearchBar from '../components/SearchBar';
+import SearchAndModify from "../components/SearchAndModify";
 
 function ArtworksPage() {
-    const [artworks, setArtworks] = useState([]);
-
-    const handleSuggestionSelect = (artist) => {
-        axios.get(`http://localhost:3001/artworks/artists/${artist.id}`)
-            .then(response => {
-                setArtworks(response.data);
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
-    }
 
     return (
         <div>
-            <SearchBar onSuggestionSelected={handleSuggestionSelect} apiUrl={`/artists/search`} placeholder={"Search Artists..."}/>
-            <ItemList items={artworks} onItemSelect={() => { }} onDeleteItem={() => { }} />
+            <SearchAndModify table1="artists" table2="artworks" label="Artworks from artists" />
         </div>
     );
 }

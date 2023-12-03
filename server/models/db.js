@@ -1,4 +1,4 @@
-const sqlite3 = require("sqlite3").verbose();
+/*const sqlite3 = require("sqlite3").verbose();
 
 const db = new sqlite3.Database("./data.sqlite");
 
@@ -23,4 +23,19 @@ db.serialize(() => {
       db.run("CREATE TABLE lived_in (artist_id INTEGER, art_period_id INTEGER, FOREIGN KEY(artist_id) REFERENCES artists(artist_id), FOREIGN KEY(art_period_id) REFERENCES art_periods(id), PRIMARY KEY(artist_id, art_period_id))");
       db.run("CREATE TABLE owned_by (artwork_id INTEGER, collector_id INTEGER, FOREIGN KEY(artwork_id) REFERENCES artworks(id), FOREIGN KEY(collector_id) REFERENCES collectors(id))");
       db.run("CREATE TABLE falls_under (artwork_id INTEGER, art_style_id INTEGER, FOREIGN KEY(artwork_id) REFERENCES artworks(id), FOREIGN KEY(art_style_id) REFERENCES art_styles(id))");*/
-});
+//});
+const fs = require('fs');
+const path = require('path');
+const sqlite3 = require('sqlite3').verbose();
+
+// Define the paths for the original and backup databases
+const originalDbPath = path.join(__dirname, 'data.sqlite');
+const backupDbPath = path.join(__dirname, 'data_tmp.sqlite');
+
+// Use fs.copyFileSync to copy the original database file to the backup location
+fs.copyFileSync(originalDbPath, backupDbPath);
+
+// Now you can create a new sqlite3.Database instance with the backup database
+const backupDb = new sqlite3.Database(backupDbPath);
+
+module.exports = backupDb;
