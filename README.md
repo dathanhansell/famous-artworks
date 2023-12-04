@@ -1,7 +1,7 @@
 # Famous Artworks Application
 
 This application provides information about various famous artworks and allows users to interact with them in different ways.
-![Example Image](./assets/example.png)
+![Example Image](./assets/example1.png)
 
 ## Features
 
@@ -12,12 +12,8 @@ This application provides information about various famous artworks and allows u
 ## Pages
 
 - Home: Displays famous artworks and provides links to other pages
-- Test: A page for testing
-- ArtworksPage: Displays artworks based on the artist
-- LoginForm: A page for users to login
-- RegisterForm: A page for users to register
-- MuseumsPage: Displays artists based on the museum
-- etc.
+- Database: Allows for any modification to the artworks database including the modification of relations and creation of data
+- Search: Allows for the indirect and direct relational searching, like Art Periods of a given Artist
 
 ## Instructions
 
