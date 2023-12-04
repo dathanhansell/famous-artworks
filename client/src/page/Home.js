@@ -10,7 +10,7 @@ function HomePage() {
                 <div className="home__grid__item">
                     <h2>Scrum Operations</h2>
                     <ul>
-                        <li><Link to="/db">Add, Update, Remove Artworks</Link></li>
+                        <li><Link to="/db">Add, Update, Remove All Data</Link></li>
                     </ul>
                 </div>
                 <div className="home__grid__item">
