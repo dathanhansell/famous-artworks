@@ -18,6 +18,7 @@ function SearchAndModify({ table1, table2, label }) {
             .then((response) => {
                 const validItems = response.data.filter(item => item);
                 setItems1(validItems);
+                console.log('Fetched items from API:', validItems);
             })
             .catch((error) => {
                 console.error("There was an error!", error);
@@ -25,8 +26,10 @@ function SearchAndModify({ table1, table2, label }) {
     }, [table1]);
 
 
+
     const handleSuggestionSelect = (event, value) => {
         setSelectedItem1(value);
+        console.log('Selected suggestion:', value);
         if (value) {
             axios
                 .get(`http://localhost:3001/${table2}/${table1}/${value.id}`)
@@ -56,12 +59,12 @@ function SearchAndModify({ table1, table2, label }) {
             setSelected([]);
         }
     };
-    
+
     const isSelected = (id) => {
         const foundIndex = selected.indexOf(id);
         return foundIndex !== -1;
     };
-    
+
 
     const handleClick = (event, id) => {
         const selectedIndex = selected.indexOf(id);
@@ -79,52 +82,17 @@ function SearchAndModify({ table1, table2, label }) {
                 selected.slice(selectedIndex + 1),
             );
         }
-
         setSelected(newSelected);
     };
 
 
     const handleDelete = () => {
-        const deleteRequests = selected.map((id) => {
-            return axios
-                .delete(`http://localhost:3001/${table2}/${id}`)
-                .then(() => {
-                    console.log(`Deleted record with id: ${id}`);
-                })
-                .catch((error) => {
-                    console.error(`Error deleting record with id ${id}: ${error}`);
-                });
-        });
-
-        Promise.all(deleteRequests)
-            .then(() => {
-                // After all delete requests are complete, fetch the updated list of items
-                handleSuggestionSelect("", selectedItem1); // Assuming fetchData is defined and updates your state with the latest data
-                setSelected([]); // Clear selected items
-            })
-            .catch((error) => {
-                console.error(`Error deleting records: ${error}`);
-            });
+        handleSuggestionSelect("", selectedItem1); // Assuming fetchData is defined and updates your state with the latest data
+        setSelected([]); // Clear selected items
     };
     const handleUpdate = (updatedData) => {
-        const updateRequests = Object.entries(updatedData).map(([id, data]) => {
-            return axios.put(`http://localhost:3001/${table2}/${id}`, data)
-                .then(() => {
-                    console.log(`Updated record with id ${id}`);
-                })
-                .catch((error) => {
-                    console.error(`Error updating record with id ${id}: ${error}`);
-                });
-        });
-
-        Promise.all(updateRequests)
-            .then(() => {
-                handleSuggestionSelect("", selectedItem1); // Assuming fetchData is defined and updates your state with the latest data
-                setSelected([]);
-            })
-            .catch((error) => {
-                console.error(`Error updating records: ${error}`);
-            });
+        handleSuggestionSelect("", selectedItem1); // Assuming fetchData is defined and updates your state with the latest data
+        setSelected([]);
     };
 
 
@@ -133,16 +101,21 @@ function SearchAndModify({ table1, table2, label }) {
 
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                 <Box flexGrow={1}>
-                    <Autocomplete
-                        id={`search-${table1}`}
-                        options={items1}
-                        getOptionLabel={(option) => option && typeof option.name === 'string' ? option.name : ""}
-                        onChange={handleSuggestionSelect}
-                        renderInput={(params) => <TextField {...params} label={`Search ${label}`} variant="outlined" fullWidth />}
-                    />
+                <Autocomplete
+    id={`search-${table1}`}
+    options={items1}
+    getOptionLabel={(option) => {
+        const keys = Object.keys(option);
+        return option && keys[1] ? option[keys[1]] : "";
+    }}
+    onChange={handleSuggestionSelect}
+    renderInput={(params) => <TextField {...params} label={`Search ${label}`} variant="outlined" fullWidth />}
+/>
+
+
                 </Box>
                 <Box ml={2}>
-                    <DeleteDialog selected={selected} onDelete={handleDelete} />
+                    <DeleteDialog selected={selected} onDelete={handleDelete} table={table2} />
                 </Box>
                 <Box ml={2}>
                     <EditDialog selected={selected} onUpdate={handleUpdate} table={table2} />
@@ -154,11 +127,11 @@ function SearchAndModify({ table1, table2, label }) {
                     <TableHead>
                         <TableRow>
                             <TableCell padding="checkbox">
-                            <Checkbox
-                                indeterminate={selected.length > 0 && selected.length < items2.length}
-                                checked={items2.length > 0 && selected.length === items2.length}
-                                onChange={handleSelectAllClick}
-                            />
+                                <Checkbox
+                                    indeterminate={selected.length > 0 && selected.length < items2.length}
+                                    checked={items2.length > 0 && selected.length === items2.length}
+                                    onChange={handleSelectAllClick}
+                                />
 
                             </TableCell>
                             {items2[0] && Object.keys(items2[0]).map((key, index) => (

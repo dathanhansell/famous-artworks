@@ -62,10 +62,14 @@ const joinThreeTables = (primaryTable, secondaryTable, middleTable, relationTabl
 
 
 const getItemsByParameter = async (req, res,table1, table2, relation1, relation2,table3) => {
-    //console.log("params",req.params);
-    const paramId = req.params[`${removeTrailingS(table2)}Id`];
-    //console.log("table2",table2);
-    //console.log("paramId",paramId);
+    console.log(`Parameters: table1=${table1}, table2=${table2}, relation1=${relation1}, relation2=${relation2}, table3=${table3}`);
+    const paramId = req.params[`${table2}Id`];
+    console.log(`Request params: ${JSON.stringify(req.params)}`);
+    console.log(`Computed paramId: ${paramId}`);
+    console.log(`Request path: ${req.path}`);
+    console.log(`Request method: ${req.method}`);
+    console.log(`getItemsByParameter called with parameters: ${table1}, ${table2}, ${relation1}, ${relation2 || 'none'}, ${table3 || 'none'}`);
+
     try {
         let items;
         if (relation2) {
@@ -73,11 +77,15 @@ const getItemsByParameter = async (req, res,table1, table2, relation1, relation2
         } else {
             items = await joinTwoTables(table1, table2, relation1, paramId);
         }
+        console.log(`Items: ${JSON.stringify(items)}`);
         res.send(items);
+        console.log(`Response status code: ${res.statusCode}`);
     } catch (err) {
+        console.log(`Error in getItemsByParameter: ${err.message}`);
         res.status(500).send(err.message);
     }
 };
+
 
 
 const deleteRecord = (tableName, id, req, res) => {
@@ -114,6 +122,7 @@ const updateRecord = (tableName, fields, id, req, res) => {
     });
 };
 const createRecord = (tableName, fields, req, res) => {
+    console.log("fields",fields)
     const fieldNames = Object.keys(fields);
     const fieldValues = Object.values(fields);
 
@@ -143,27 +152,22 @@ const createRecord = (tableName, fields, req, res) => {
     });
 };
 
-const updateRelation = (tableName, id, relatedIds) => {
-    // Check if relatedIds is an array
-    if (!Array.isArray(relatedIds)) {
-        console.error('relatedIds must be an array');
-        return;
-    }
-    for (let relatedId of relatedIds) {
+const updateRelation = (tableName, id, relatedId) => {
+
         let stmt = db.prepare(`INSERT INTO ${tableName} VALUES (?, ?)`);
+        console.log("id",id,"relatedId",relatedId);
         stmt.run(id, relatedId);
-    }
+    
 };
 
 
 
 
 
-function tableToID(str) {
-    return str.slice(0, -1) + '_id';
-};
+
 
 function removeTrailingS(str) {
+    console.log("removetrailings",str.endsWith('s') ? str.slice(0, -1) : str);
     return str.endsWith('s') ? str.slice(0, -1) : str;
 };
 function tableToID(str) {

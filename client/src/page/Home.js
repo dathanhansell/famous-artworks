@@ -10,19 +10,13 @@ function HomePage() {
                 <div className="home__grid__item">
                     <h2>Scrum Operations</h2>
                     <ul>
-                        <li><Link to="/test">Add, Update, Remove Artworks</Link></li>
+                        <li><Link to="/db">Add, Update, Remove Artworks</Link></li>
                     </ul>
                 </div>
                 <div className="home__grid__item">
-                    <h2>Direct Relations</h2>
+                    <h2>Relations</h2>
                     <ul>
-                        <li><Link to="/artonartist">All Artworks From Artist</Link></li>
-                    </ul>
-                </div>
-                <div className="home__grid__item">
-                    <h2>Indirect Relations</h2>
-                    <ul>
-                        <li><Link to="/artonmuseum">Artists Exhibited in a Museum</Link></li>
+                        <li><Link to="/search">Search with direct and indirect relations</Link></li>
                     </ul>
                 </div>
                 <div className="home__grid__item">

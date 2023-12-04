@@ -1,11 +1,10 @@
 import RegisterForm from "./components/RegisterForm";
 import ButtonAppBar from './components/MenuBar';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import TestPage from "./page/testPage";
+import ModifyPage from "./page/ModifyPage";
 import LoginForm from "./components/LoginForm";
 import HomePage from "./page/Home";
-import ArtworksPage from "./page/artworksOnArtist";
-import MuseumsPage from "./page/artistsOnMuseums";  
+import SearchPage from "./page/SearchPage";  
 function App() {
   return (
     <Router>
@@ -13,11 +12,10 @@ function App() {
       <div className="app-content">
       <Routes>
         <Route path="/" element={ <HomePage /> } />
-        <Route path="/test" element={ <TestPage /> } />
-        <Route path="/artonartist" element={ <ArtworksPage /> } />
+        <Route path="/db" element={ <ModifyPage /> } />
         <Route path="/login" element={ <LoginForm /> } />
         <Route path="/register" element={ <RegisterForm /> } />
-        <Route path="/artonmuseum" element={ <MuseumsPage /> } />
+        <Route path="/search" element={ <SearchPage /> } />
       </Routes>
       </div>
     </Router>

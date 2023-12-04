@@ -74,76 +74,23 @@ function ModifyTable({ table, label }) {
 
 
     const handleDelete = () => {
-        const deleteRequests = selected.map((id) => {
-            return axios
-                .delete(`http://localhost:3001/${table}/${id}`)
-                .then(() => {
-                    console.log(`Deleted record with id: ${id}`);
-                })
-                .catch((error) => {
-                    console.error(`Error deleting record with id ${id}: ${error}`);
-                });
-        });
-
-        Promise.all(deleteRequests)
-            .then(() => {
-                // After all delete requests are complete, fetch the updated list of items
-                load(table); // Assuming fetchData is defined and updates your state with the latest data
-                setSelected([]); // Clear selected items
-            })
-            .catch((error) => {
-                console.error(`Error deleting records: ${error}`);
-            });
+        console.log("deleted", selected);
+        load(table); 
+        setSelected([]); // Clear selected items
     };
-    const handleUpdate = (updatedData) => {
-        const updateRequests = Object.entries(updatedData).map(([id, data]) => {
-            return axios.put(`http://localhost:3001/${table}/${id}`, data)
-                .then(() => {
-                    console.log(`Updated record with id ${id}`);
-                })
-                .catch((error) => {
-                    console.error(`Error updating record with id ${id}: ${error}`);
-                });
-        });
-
-        Promise.all(updateRequests)
-            .then(() => {
-                load(table); // Assuming fetchData is defined and updates your state with the latest data
-                setSelected([]);
-            })
-            .catch((error) => {
-                console.error(`Error updating records: ${error}`);
-            });
+    const handleUpdate = () => {
+        load(table); //
+        setSelected([]); 
     };
-    const handleCreate = async (newData) => {
-        const url = `http://localhost:3001/${table}`;
-    
-        try {
-            const response = await axios.post(url, newData);
-    
-            if (response.status === 200) {
-                alert(response.data);
-            } else {
-                throw new Error("Response status is not okay");
-            }
-    
-            load(table);
-        } catch (err) {
-            console.error("Error with axios:", err);
-        }
-    };
-    
-
-
 
     return (
         <div>
             <Box display="flex" justifyContent="flex-end" alignItems="center" mb={3}>
                 <Box ml={2}>
-                    <CreateDialog selected={selected} table={table} onCreate={handleCreate} />
+                    <CreateDialog selected={selected} table={table} onCreate={load(table)} />
                 </Box>
                 <Box ml={2}>
-                    <DeleteDialog selected={selected} onDelete={handleDelete} />
+                    <DeleteDialog selected={selected} onDelete={handleDelete }table={table} />
                 </Box>
                 <Box ml={2}>
                     <EditDialog selected={selected} onUpdate={handleUpdate} table={table} />

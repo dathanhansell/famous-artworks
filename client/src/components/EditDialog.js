@@ -24,6 +24,7 @@ function EditDialog({ selected, onUpdate, table }) {
                 const combinedResults = results.reduce((obj, result) => ({ ...obj, ...result }), {});
                 setFormData(combinedResults);
                 setOpen(true);
+                
             })
             .catch((error) => {
                 console.error(`Error fetching records: ${error}`);
@@ -35,7 +36,23 @@ function EditDialog({ selected, onUpdate, table }) {
     };
 
     const handleUpdate = () => {
-        onUpdate(formData);
+        const updateRequests = Object.entries(formData).map(([id, data]) => {
+            return axios.put(`http://localhost:3001/${table}/${id}`, data)
+                .then(() => {
+                    console.log(`Updated record with id ${id}`);
+                })
+                .catch((error) => {
+                    console.error(`Error updating record with id ${id}: ${error}`);
+                });
+        });
+
+        Promise.all(updateRequests)
+            .then(() => {
+                onUpdate();
+            })
+            .catch((error) => {
+                console.error(`Error updating records: ${error}`);
+            });
         handleClose();
     };
 

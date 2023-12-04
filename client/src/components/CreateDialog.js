@@ -1,10 +1,33 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Button, Dialog, DialogActions, DialogContent, TextField, DialogTitle, Grid } from "@material-ui/core";
+import RelationsDropdown from './RelationsDropdown';
 
 function CreateDialog({ onCreate, table }) {
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState({});
+    const [relationData, setRelationData] = useState({}); // New state for relation data
+    const relations = {
+        "created_by": "artists",
+        "lived_in": "art_periods",
+        "belongs_to": "museums",
+        "included_in": "art_periods",
+        "owned_by": "collectors",
+        "falls_under": "art_styles",
+    };
+
+    const fields = {
+        "artists": ["lived_in"],
+        "artworks": ["created_by", "belongs_to", "included_in", "owned_by", "falls_under"],
+        "art_periods": [],
+        "museums": [],
+        "collectors": [],
+        "art_styles": [],
+    };
+    const inverseRelations = Object.entries(relations).reduce(
+        (obj, [key, value]) => ({ ...obj, [value]: key }),
+        {}
+    );
 
     const handleClickOpen = () => {
         // Fetch one record to get the fields
@@ -31,22 +54,43 @@ function CreateDialog({ onCreate, table }) {
     const handleClose = () => {
         setOpen(false);
     };
+    function removeTrailingS(str) {
+        return str.endsWith('s') ? str.slice(0, -1) : str;
+    };
+    function tableToID(str) {
+        return removeTrailingS(str) + '_id';
+    };
+    const handleCreate = async () => {
+        // Include both form data and relation data in the data being sent
+        const dataToSend = { ...formData, ...relationData };
+        console.log(dataToSend);
+        const url = `http://localhost:3001/${table}`;
 
-    const handleCreate = () => {
-        // Exclude the 'id' field from the data being sent
-        const dataToSend = Object.keys(formData).reduce((obj, key) => {
-            if (key !== 'id') {
-                return { ...obj, [key]: formData[key] };
+        try {
+            const response = await axios.post(url, dataToSend);
+
+            if (response.status === 200) {
+                alert(response.data);
+            } else {
+                throw new Error("Response status is not okay");
             }
-            return obj;
-        }, {});
+        } catch (err) {
+            console.error("Error with axios:", err);
+        }
 
-        onCreate(dataToSend);
         handleClose();
     };
 
+
     const handleChange = (name, event) => {
         setFormData(prevState => ({
+            ...prevState,
+            [name]: event.target.value
+        }));
+    };
+
+    const handleRelationChange = (name, event) => {
+        setRelationData(prevState => ({
             ...prevState,
             [name]: event.target.value
         }));
@@ -84,6 +128,18 @@ function CreateDialog({ onCreate, table }) {
                                     </Grid>
                                 );
                             }
+                        })}
+                        {fields[table].map((field) => {
+                            const relatedTable = relations[field];
+                            return (
+                                <Grid item xs={6} sm={3} key={field}>
+                                    <RelationsDropdown
+                                        table={relatedTable}
+                                        value={relationData[field] || ''}
+                                        onChange={(event) => handleRelationChange(field, event)}
+                                    />
+                                </Grid>
+                            );
                         })}
 
                     </Grid>
