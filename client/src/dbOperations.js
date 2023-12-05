@@ -1,5 +1,61 @@
 // dbOperations.js
 import axios from 'axios';
+export const getTotalCount = (table, setItems) => {
+    if ([table, setItems].includes(undefined)) {
+        console.warn("One or more parameters are undefined");
+        return;
+    }
+    axios.get(`http://localhost:3001/${table}/api/count`)
+        .then((response) => {
+            setItems(response.data);
+        })
+        .catch((error) => {
+            console.error(`Error fetching museums: ${error}`);
+        }
+        );
+}
+export const loadAvg = (table1, table2, setItems) => {
+    if ([table1, table2, setItems].includes(undefined)) {
+        console.warn("One or more parameters are undefined");
+        return;
+    }
+    axios.get(`http://localhost:3001/${table1}/avg_${table2}`)
+        .then((response) => {
+            setItems(response.data);
+        })
+        .catch((error) => {
+            console.error(`Error fetching museums: ${error}`);
+        }
+        );
+}
+
+
+export const loadWithMost = (table1, table2, setItems, limit) => {
+    if ([table1, table2, setItems].includes(undefined)) {
+        console.warn("One or more parameters are undefined");
+        return;
+    }
+    axios.get(`http://localhost:3001/${table1}/most_${table2}?limit=${limit}`)
+        .then((response) => {
+            setItems(response.data);
+        })
+        .catch((error) => {
+            console.error(`Error fetching museums: ${error}`);
+        });
+}
+export const loadSortedData = (table, setItems, sort, direction, limit) => {
+    if ([table, setItems, sort, direction, limit].includes(undefined)) {
+        console.warn("One or more parameters are undefined");
+        return;
+    }
+    axios.get(`http://localhost:3001/${table}?sort=${sort}&direction=${direction}&limit=${limit}`)
+    .then((response) => {
+        setItems(response.data.data);
+    })
+    .catch((error) => {
+        console.error(`Error fetching artists: ${error}`);
+    });
+}
 export const loadSpecificData = (table, setItems, id = '') => {
     if ([table, setItems].includes(undefined)) {
         console.warn("One or more parameters are undefined");
@@ -48,6 +104,15 @@ export const loadRelations = (table1, table2, setItems,value) => {
         });
 };
 
+export const getYoungestArtist=(setArtist)=> {
+    axios.get('http://localhost:3001/artists?sort=birthdate&limit=1&direction=DESC' )
+    .then(response => {
+        setArtist(response.data.data[0]);
+    })
+    .catch(error => {
+        console.error("Error fetching oldest artist:", error);
+    });
+}
 
 
 export const createData = (table, dataToSend, onCreate) => {

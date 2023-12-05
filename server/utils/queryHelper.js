@@ -58,6 +58,28 @@ const joinThreeTables = (primaryTable, secondaryTable, middleTable, relationTabl
     });
 };
 
+function getEntitiesWithMostRelationsIndirect(entity1, entity2, middleTable, relationTable1, relationTable2, limit,  res) {
+    const query = `
+        SELECT ${entity1}.*, COUNT(DISTINCT ${entity2}.id) AS count
+        FROM ${entity1}
+        JOIN ${relationTable1} ON ${entity1}.id = ${relationTable1}.${tableToID(entity1)}
+        JOIN ${middleTable} ON ${relationTable1}.${tableToID(middleTable)} = ${middleTable}.id
+        JOIN ${relationTable2} ON ${middleTable}.id = ${relationTable2}.${tableToID(middleTable)}
+        JOIN ${entity2} ON ${entity2}.id = ${relationTable2}.${tableToID(entity2)}
+        GROUP BY ${entity1}.id
+        ORDER BY count DESC
+        LIMIT ?
+    `;
+    console.log(query);
+
+    db.all(query, [limit], (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.send(rows);
+    });
+}
+
 
 
 
@@ -161,7 +183,7 @@ const updateRelation = (tableName, id, relatedId) => {
 };
 
 
-function getEntitiesWithMostRelations(entity1, entity2, relationTable, req, res) {
+function getEntitiesWithMostRelations(entity1, entity2, relationTable, limit, res) {
     const query = `
         SELECT ${entity1}.*, COUNT(${entity2}.id) AS count
         FROM ${entity1}
@@ -169,10 +191,12 @@ function getEntitiesWithMostRelations(entity1, entity2, relationTable, req, res)
         JOIN ${entity2} ON ${entity2}.id = ${relationTable}.${tableToID(entity2)}
         GROUP BY ${entity1}.id
         ORDER BY count DESC
+        LIMIT ?
     `;
     console.log(query);
+    console.log("limit",limit); 
 
-    db.all(query, (err, rows) => {
+    db.all(query,limit, (err, rows) => {
         if (err) {
             throw err;
         }
@@ -321,5 +345,6 @@ module.exports = {
     createRouter,
     getEntitiesWithMostRelations,
     getTotalCount,
-    getEntitiesWithAverageRelations
+    getEntitiesWithAverageRelations,
+    getEntitiesWithMostRelationsIndirect
 };

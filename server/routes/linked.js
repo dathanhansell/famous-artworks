@@ -2,7 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
-const { getItemsByParameter, getEntitiesWithMostRelations,getEntitiesWithAverageRelations } = require('../utils/queryHelper');
+const { getItemsByParameter, getEntitiesWithMostRelations,getEntitiesWithAverageRelations,getEntitiesWithMostRelationsIndirect} = require('../utils/queryHelper');
 
 const relations = [
     {from: 'artworks', to: 'artists', through: 'created_by'},
@@ -73,7 +73,24 @@ function generateRoutes(relations) {
 
             const routeFunction = async (req, res) => {
                 console.log(`Handling request for route: ${req.path}`);
-                getEntitiesWithMostRelations(relation.from, relation.to, relation.through, req, res);
+                getEntitiesWithMostRelations(relation.from, relation.to, relation.through, req.query.limit, res);
+                console.log(`Finished handling request for route: ${req.path}`);
+            };
+
+            routes.push({
+                name: routeName,
+                url: url,
+                handler: routeFunction
+            });
+            console.log(`Generated route - name: ${routeName}, url: ${url}`);
+        }
+        else{
+            const routeName = `get${capitalize(relation.from)}WithMost${capitalize(relation.to)}`;
+            const url = `/${relation.from}/most_${relation.to}`;
+
+            const routeFunction = async (req, res) => {
+                console.log(`Handling request for route: ${req.path}`);
+                getEntitiesWithMostRelationsIndirect(relation.from, relation.to,relation.indirect.on, relation.indirect.through,relation.indirect.via, req.query.limit, res);
                 console.log(`Finished handling request for route: ${req.path}`);
             };
 
