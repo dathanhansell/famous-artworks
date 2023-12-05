@@ -1,19 +1,27 @@
-import pandas as pd
+import csv
 
-# Read the CSV file
-df = pd.read_csv('./artworks.csv')
+# First, read the artists file, create a new ID for each artist, and write it to a new file
+new_artists = {}
+with open('artists.csv', 'r',encoding="utf-8") as f, open('artists_updated.csv', 'w', newline='',encoding="utf-8") as f_out:
+    reader = csv.reader(f)
+    writer = csv.writer(f_out)
+    writer.writerow(next(reader))  # write the header
+    for new_id, row in enumerate(reader, start=1):
+        original_id = row[0]
+        new_artists[original_id] = new_id
+        row[0] = new_id
+        writer.writerow(row)
 
-# Keep only the necessary columns
-df = df[['Title', 'Date', 'Medium', 'Artist ID']]
+print("New artist mapping: ", new_artists)
 
-# Convert 'Artist ID' to numeric
-df['Artist ID'] = pd.to_numeric(df['Artist ID'], errors='coerce')
-
-# Keep only the rows where 'Artist ID' is less than or equal to 1000
-df = df[df['Artist ID'] <= 1000]
-
-# Remove artworks so that if there are multiple artworks made in one year by one artist it only keeps the first one
-df = df.drop_duplicates(subset=['Date', 'Artist ID'], keep='first')
-
-# Write the cleaned data back to the CSV file
-df.to_csv('./artworks_clean.csv', index=False)
+# Then, read the artworks file, replace the artist id with the new id, and write to a new file
+with open('artworks.csv', 'r',encoding="utf-8") as f, open('artworks_updated.csv', 'w', newline='',encoding="utf-8") as f_out:
+    reader = csv.reader(f)
+    writer = csv.writer(f_out)
+    writer.writerow(next(reader))  # write the header
+    for row in reader:
+        original_id = str(int(float(row[3])))
+        new_id = str(new_artists.get(original_id, original_id))
+        print(original_id,new_id)
+        row[3] = new_id
+        writer.writerow(row)

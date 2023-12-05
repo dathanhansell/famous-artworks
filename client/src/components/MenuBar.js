@@ -25,9 +25,6 @@ export default function ButtonAppBar() {
           <Button color="inherit" component={Link} to="/">Home</Button>
           <Button color="inherit" component={Link} to="/db">Database</Button>
           <Button color="inherit" component={Link} to="/search">Search</Button>
-          <Button color="inherit" component={Link} to="/login">
-            Login
-          </Button>
         </Toolbar>
       </AppBar>
 

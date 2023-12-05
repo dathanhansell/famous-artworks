@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@material-ui/core";
 import axios from "axios";
+import { deleteData } from "../dbOperations";
 function DeleteDialog({ selected, onDelete, table }) {
     const [open, setOpen] = useState(false);
 
@@ -13,24 +14,7 @@ function DeleteDialog({ selected, onDelete, table }) {
     };
 
     const handleDelete = () => {
-        const deleteRequests = selected.map((id) => {
-            return axios
-                .delete(`http://localhost:3001/${table}/${id}`)
-                .then(() => {
-                    console.log(`Deleted record with id: ${id}`);
-                })
-                .catch((error) => {
-                    console.error(`Error deleting record with id ${id}: ${error}`);
-                });
-        });
-
-        Promise.all(deleteRequests)
-            .then(() => {
-                onDelete();
-            })
-            .catch((error) => {
-                console.error(`Error deleting records: ${error}`);
-            });
+        deleteData(table, selected, onDelete);
         handleClose();
     };
 

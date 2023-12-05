@@ -161,6 +161,46 @@ const updateRelation = (tableName, id, relatedId) => {
 };
 
 
+function getEntitiesWithMostRelations(entity1, entity2, relationTable, req, res) {
+    const query = `
+        SELECT ${entity1}.*, COUNT(${entity2}.id) AS count
+        FROM ${entity1}
+        JOIN ${relationTable} ON ${entity1}.id = ${relationTable}.${tableToID(entity1)}
+        JOIN ${entity2} ON ${entity2}.id = ${relationTable}.${tableToID(entity2)}
+        GROUP BY ${entity1}.id
+        ORDER BY count DESC
+    `;
+    console.log(query);
+
+    db.all(query, (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.send(rows);
+    });
+}
+function getEntitiesWithAverageRelations(entity1, entity2, relationTable, req, res) {
+    const query = `
+        SELECT AVG(artwork_count) AS average
+        FROM (
+            SELECT COUNT(${entity2}.id) AS artwork_count
+            FROM ${entity1}
+            JOIN ${relationTable} ON ${entity1}.id = ${relationTable}.${tableToID(entity1)}
+            JOIN ${entity2} ON ${entity2}.id = ${relationTable}.${tableToID(entity2)}
+            GROUP BY ${entity1}.id
+        )
+    `;
+    console.log(query);
+
+    db.get(query, (err, row) => {
+        if (err) {
+            throw err;
+        }
+        res.send(row);
+    });
+}
+
+
 
 
 
@@ -172,25 +212,36 @@ function removeTrailingS(str) {
 };
 function tableToID(str) {
     return removeTrailingS(str) + '_id';
-};
-const getRecords = (tableName, page, limit, res) => {
-    if (page && limit) {
+};const getRecords = (tableName, page=0, limit, sort, direction, res) => {
+    if (!sort) sort = 'id'; // Default sort column
+    if (!direction) direction = 'ASC'; // Default sort direction
+
+    if (page !== undefined && limit !== undefined) {
         const offset = (page - 1) * limit;
-        db.all(`SELECT * FROM ${tableName} LIMIT ? OFFSET ?`, [limit, offset], (err, rows) => {
+        db.all(`SELECT COUNT(*) as total FROM ${tableName}`, [], (err, totalRows) => {
             if (err) {
                 throw err;
             }
-            res.send(rows);
+            const total = totalRows[0].total;
+            const totalPages = Math.ceil(total / limit);
+            db.all(`SELECT * FROM ${tableName} ORDER BY ${sort} ${direction} LIMIT ? OFFSET ?`, [limit, offset], (err, rows) => {
+                if (err) {
+                    throw err;
+                }
+                res.send({data: rows, meta: {totalPages, total}});
+            });
         });
     } else {
-        db.all(`SELECT * FROM ${tableName}`, (err, rows) => {
+        db.all(`SELECT * FROM ${tableName} ORDER BY ${sort} ${direction}`, (err, rows) => {
             if (err) {
                 throw err;
             }
-            res.send(rows);
+            res.send({data: rows, meta: {}}); // Send meta as an empty object when there's no page or limit
         });
     }
 };
+
+
 
 
 
@@ -216,16 +267,34 @@ const getRecordWithID = (tableName, id, res) => {
         res.send(row);
     });
 }
+function getTotalCount(tableName, res) {
+    db.get(`SELECT COUNT(*) as count FROM ${tableName}`, (err, row) => {
+        if (err) {
+            console.log(err);
+            res.status(500).json({ error: err.message });
+        } else {
+            res.json({ count: row.count });
+        }
+    });
+}
+
+
 function createRouter(tableName, fields) {
     const router = express.Router();
-    router.get(`/${tableName}/:id`, (req, res) =>  getRecordWithID(tableName, req.params.id, res));
-    router.get(`/${tableName}/search`, (req, res) => getRecordsLike(tableName, fields[0],req, res));
-    router.get(`/${tableName}`, (req, res) => getRecords(tableName, req.query.page, req.query.limit, res));
+    router.use((req, res, next) => {
+        console.log(`Accessed route: ${req.originalUrl}`);
+        next();
+    });
 
+    router.get(`/${tableName}/:id`, (req, res) =>  getRecordWithID(tableName, req.params.id, res));
+    router.get(`/${tableName}/api/search`, (req, res) => getRecordsLike(tableName, fields[0],req, res));
+    router.get(`/${tableName}/api/count`, (req, res) => getTotalCount(tableName, res));
+    router.get(`/${tableName}`, (req, res) => getRecords(tableName, req.query.page, req.query.limit, req.query.sort, req.query.direction, res));
+    
     router.post(`/${tableName}`, (req, res) => createRecord(tableName, getFields(req, fields), req, res));
     router.delete(`/${tableName}/:id`, (req, res) => deleteRecord(tableName, req.params.id, req, res));
     router.put(`/${tableName}/:id`, (req, res) => updateRecord(tableName, getFields(req, fields), req.params.id, req, res));
-
+    
     function getFields(req, fields) {
         let result = {};
         fields.forEach(field => {
@@ -236,6 +305,7 @@ function createRouter(tableName, fields) {
 
     return router;
 }
+
 
 
 module.exports = {
@@ -249,4 +319,7 @@ module.exports = {
     getAllRecords: getRecords,
     getRecordsLike,
     createRouter,
+    getEntitiesWithMostRelations,
+    getTotalCount,
+    getEntitiesWithAverageRelations
 };

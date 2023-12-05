@@ -4,6 +4,7 @@ import { Autocomplete } from "@material-ui/lab";
 import { TextField, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Paper, Checkbox, Grid, Box } from "@material-ui/core";
 import DeleteDialog from './DeleteDialog';
 import EditDialog from './EditDialog';
+import { loadRelations, loadData } from "../dbOperations";
 function SearchAndModify({ table1, table2, label }) {
     const [items1, setItems1] = useState([]);
     const [selectedItem1, setSelectedItem1] = useState(null);
@@ -13,16 +14,7 @@ function SearchAndModify({ table1, table2, label }) {
     const [selected, setSelected] = useState([]);
 
     useEffect(() => {
-        axios
-            .get(`http://localhost:3001/${table1}/`)
-            .then((response) => {
-                const validItems = response.data.filter(item => item);
-                setItems1(validItems);
-                console.log('Fetched items from API:', validItems);
-            })
-            .catch((error) => {
-                console.error("There was an error!", error);
-            });
+        loadData(table1, setItems1);
     }, [table1]);
 
 
@@ -31,14 +23,7 @@ function SearchAndModify({ table1, table2, label }) {
         setSelectedItem1(value);
         console.log('Selected suggestion:', value);
         if (value) {
-            axios
-                .get(`http://localhost:3001/${table2}/${table1}/${value.id}`)
-                .then((response) => {
-                    setItems2(response.data);
-                })
-                .catch((error) => {
-                    console.error("There was an error!", error);
-                });
+            loadRelations(table1, table2, setItems2,value);
         }
     };
 

@@ -1,8 +1,6 @@
-import RegisterForm from "./components/RegisterForm";
 import ButtonAppBar from './components/MenuBar';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import ModifyPage from "./page/ModifyPage";
-import LoginForm from "./components/LoginForm";
 import HomePage from "./page/Home";
 import SearchPage from "./page/SearchPage";  
 function App() {
@@ -13,8 +11,6 @@ function App() {
       <Routes>
         <Route path="/" element={ <HomePage /> } />
         <Route path="/db" element={ <ModifyPage /> } />
-        <Route path="/login" element={ <LoginForm /> } />
-        <Route path="/register" element={ <RegisterForm /> } />
         <Route path="/search" element={ <SearchPage /> } />
       </Routes>
       </div>

@@ -8,7 +8,7 @@ function RelationsDropdown({ table, onChange, value }) {
     useEffect(() => {
         axios.get(`http://localhost:3001/${table}`)
             .then((response) => {
-                setRecords(response.data);
+                setRecords(response.data.data);
             })
             .catch((error) => {
                 console.error(`Error fetching records: ${error}`);

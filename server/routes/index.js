@@ -1,14 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { createRouter } = require("../utils/queryHelper");
+const { createRouter,getTotalCount } = require("../utils/queryHelper");
 
-const authRoutes = require('./auth');
-const artistsRoutes = require('./artists');
-const artworksRoutes = require('./artworks');
-const artPeriodsRoutes = require('./art_periods');
-const museumsRoutes = require('./museums');
-const collectorsRoutes = require('./collectors');
-const artStylesRoutes = require('./art_styles');
+
 const linkedRoutes = require('./linked');
 
 const artistsRouter_gen = createRouter('artists', ['name', 'birthdate', 'nationality']);
@@ -24,20 +18,13 @@ const included_in_gen = createRouter('included_in', ['artwork_id','art_period_id
 const lived_in_gen = createRouter('lived_in', ['artist_id','art_period_id']);
 const owned_by_gen = createRouter('owned_by', ['artwork_id','collector_id']);
 const falls_under_gen = createRouter('falls_under', ['artwork_id','art_style_id']);
-// Use specific routes first
-routerUse(authRoutes);
-routerUse(artistsRoutes);
-routerUse(artworksRoutes);
-routerUse(artPeriodsRoutes);
-routerUse(museumsRoutes);
-routerUse(collectorsRoutes);
-routerUse(artStylesRoutes);
 routerUse(linkedRoutes);
 // then generic routes
 routerUse(artistsRouter_gen);
 routerUse(artworksRouter_gen);
 routerUse(artPeriodsRouter_gen);
 routerUse(museumsRouter_gen);
+
 routerUse(collectorsRouter_gen);
 routerUse(artStylesRouter_gen);
 
@@ -48,7 +35,6 @@ routerUse(lived_in_gen);
 routerUse(owned_by_gen);
 routerUse(falls_under_gen);
 // Other routes
-routerUse(authRoutes);
 
 module.exports = router;
 function routerUse(func) {

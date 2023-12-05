@@ -31,7 +31,7 @@ function CreateDialog({ onCreate, table }) {
 
     const handleClickOpen = () => {
         // Fetch one record to get the fields
-        axios.get(`http://localhost:3001/${table}/1`)
+        axios.get(`http://localhost:3001/${table}/11`)
             .then((response) => {
                 // Create an object with the same keys as the record, but with empty values
                 // Exclude the 'id' field
@@ -41,6 +41,7 @@ function CreateDialog({ onCreate, table }) {
                     }
                     return obj;
                 }, {});
+   
 
                 setFormData(emptyFormData);
                 setOpen(true);

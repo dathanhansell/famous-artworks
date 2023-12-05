@@ -2,7 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
-const { getItemsByParameter } = require('../utils/queryHelper');
+const { getItemsByParameter, getEntitiesWithMostRelations,getEntitiesWithAverageRelations } = require('../utils/queryHelper');
 
 const relations = [
     {from: 'artworks', to: 'artists', through: 'created_by'},
@@ -41,6 +41,7 @@ const relations = [
 function generateRoutes(relations) {
     const routes = [];
 
+    // Generate routes for getting entities by parameter
     relations.forEach(relation => {
         const routeName = `get${capitalize(relation.to)}By${capitalize(relation.from)}`;
         const url = `/${relation.from}/${relation.to}/:${relation.to}Id`;
@@ -49,23 +50,16 @@ function generateRoutes(relations) {
         if (relation.indirect) {
             routeFunction = async (req, res) => {
                 console.log(`Handling request for route: ${req.path}`);
-
-                console.log("indirect", relation.from, relation.to, relation.indirect.through, relation.indirect.via, relation.indirect.on);
                 getItemsByParameter(req, res, relation.from, relation.to, relation.indirect.through, relation.indirect.via, relation.indirect.on);
                 console.log(`Finished handling request for route: ${req.path}`);
-
             };
         } else {
             routeFunction = async (req, res) => {
                 console.log(`Handling request for route: ${req.path}`);
-
-                console.log("direct", relation.from, relation.to, relation.through);
                 getItemsByParameter(req, res, relation.from, relation.to, relation.through);
                 console.log(`Finished handling request for route: ${req.path}`);
-
             };
         }
-        
 
         routes.push({
             name: routeName,
@@ -73,11 +67,46 @@ function generateRoutes(relations) {
             handler: routeFunction
         });
         console.log(`Generated route - name: ${routeName}, url: ${url}`);
+        if (!relation.indirect) {
+            const routeName = `get${capitalize(relation.from)}WithMost${capitalize(relation.to)}`;
+            const url = `/${relation.from}/most_${relation.to}`;
 
+            const routeFunction = async (req, res) => {
+                console.log(`Handling request for route: ${req.path}`);
+                getEntitiesWithMostRelations(relation.from, relation.to, relation.through, req, res);
+                console.log(`Finished handling request for route: ${req.path}`);
+            };
+
+            routes.push({
+                name: routeName,
+                url: url,
+                handler: routeFunction
+            });
+            console.log(`Generated route - name: ${routeName}, url: ${url}`);
+        }
+        if (!relation.indirect) {
+            const routeName = `get${capitalize(relation.from)}WithAverage${capitalize(relation.to)}`;
+            const url = `/${relation.from}/Avg_${relation.to}`;
+
+            const routeFunction = async (req, res) => {
+                console.log(`Handling request for route: ${req.path}`);
+                getEntitiesWithAverageRelations(relation.from, relation.to, relation.through, req, res);
+                console.log(`Finished handling request for route: ${req.path}`);
+            };
+
+            routes.push({
+                name: routeName,
+                url: url,
+                handler: routeFunction
+            });
+            console.log(`Generated route - name: ${routeName}, url: ${url}`);
+        }
     });
 
     return routes;
 }
+
+
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }

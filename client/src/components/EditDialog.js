@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Button, Dialog, DialogActions, DialogContent, TextField, DialogTitle, Grid } from "@material-ui/core";
+import { updateData } from "../dbOperations";
 
 function EditDialog({ selected, onUpdate, table }) {
     const [open, setOpen] = useState(false);
@@ -36,23 +37,7 @@ function EditDialog({ selected, onUpdate, table }) {
     };
 
     const handleUpdate = () => {
-        const updateRequests = Object.entries(formData).map(([id, data]) => {
-            return axios.put(`http://localhost:3001/${table}/${id}`, data)
-                .then(() => {
-                    console.log(`Updated record with id ${id}`);
-                })
-                .catch((error) => {
-                    console.error(`Error updating record with id ${id}: ${error}`);
-                });
-        });
-
-        Promise.all(updateRequests)
-            .then(() => {
-                onUpdate();
-            })
-            .catch((error) => {
-                console.error(`Error updating records: ${error}`);
-            });
+        updateData(table, formData, onUpdate);
         handleClose();
     };
 

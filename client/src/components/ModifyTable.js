@@ -19,7 +19,7 @@ function ModifyTable({ table, label }) {
         axios
             .get(`http://localhost:3001/${table}/`)
             .then((response) => {
-                const validItems = response.data.filter(item => item);
+                const validItems = response.data.data.filter(item => item);
                 setItems(validItems);
             })
             .catch((error) => {
