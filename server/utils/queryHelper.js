@@ -130,6 +130,14 @@ const deleteRecord = (tableName, id, req, res) => {
         res.send("Record deleted successfully!");
     });
 };
+const deleteRelation = (tableName,srcTable, id) => {
+    let stmt = db.prepare(`DELETE FROM ${tableName} WHERE ${tableToID(srcTable)} = ?`);
+    stmt.run(id, function(err) {
+        if (err) {
+            console.log(`Error deleting relation in ${tableName} for id ${id}: ${err.message}`);
+        }
+    });
+};
 
 const updateRecord = (tableName, fields, id, req, res) => {
     const fieldNames = Object.keys(fields);
@@ -149,11 +157,24 @@ const updateRecord = (tableName, fields, id, req, res) => {
         if (err) {
             return console.error(err.message);
         }
+        console.log(req.body);
+
+        // Update related tables
+        const relatedTables = relations_map.filter(relation => relation.from === tableName);
+        relatedTables.forEach(relation => {
+            console.log(relation);
+            console.log(relation.to);
+            console.log(req.body[relation.through]);
+            if(req.body[relation.through]) {
+                deleteRelation(relation.through, tableName, id);
+                updateRelation(tableName, relation.to, id, req.body[relation.through],relation.through);
+            }
+        });
         res.send("Data updated successfully!");
     });
 };
 const createRecord = (tableName, fields, req, res) => {
-    console.log("fields",fields)
+    console.log("fields",fields);
     const fieldNames = Object.keys(fields);
     const fieldValues = Object.values(fields);
 
@@ -174,22 +195,69 @@ const createRecord = (tableName, fields, req, res) => {
         const id = this.lastID;  // ID of the last inserted record
 
         // Update related tables
-        const relatedTables = relations[tableName];
-        for (let relatedTable of relatedTables) {
-            updateRelation(relatedTable, id, req.body[relatedTable]);
+        const relatedTables = relations_map.filter(relation => relation.from === tableName);
+    relatedTables.forEach(relation => {
+        if(req.body[relation.to]) {
+            updateRelation(tableName, relation.to, id, req.body[relation.through],relation.through);
         }
-
+    });
+    
         res.send("Data inserted successfully!");
     });
 };
 
-const updateRelation = (tableName, id, relatedId) => {
+const relations_map = [
+    {from: 'artworks', to: 'artists', through: 'created_by'},
+    {from: 'artists', to: 'artworks', through: 'created_by'},
+    {from: 'artworks', to: 'museums', through: 'belongs_to'},
+    {from: 'collectors', to: 'artworks', through: 'owned_by'},
+    {from: 'art_periods', to: 'artists', through: 'lived_in'},
+    {from: 'artworks', to: 'art_periods', through: 'included_in'},
+    {from: 'artists', to: 'art_styles', indirect: {through: 'created_by', via: 'falls_under', on: 'artworks'}},
+    {from: 'art_styles', to: 'artists', indirect: {through: 'falls_under', via: 'created_by', on: 'artworks'}},
+    {from: 'artworks', to: 'collectors', through: 'owned_by'},
+    {from: 'artworks', to: 'art_styles', through: 'falls_under'},
+    {from: 'artists', to: 'art_periods', through: 'lived_in'},
+    {from: 'museums', to: 'artworks', through: 'belongs_to'},
+    {from: 'art_periods', to: 'artworks', through: 'included_in'},
+    {from: 'artists', to: 'museums', indirect: {through: 'created_by', via: 'belongs_to', on: 'artworks'}},
+    {from: 'museums', to: 'artists', indirect: {through: 'belongs_to', via: 'created_by', on: 'artworks'}},
+    {from: 'art_styles', to: 'artworks', through: 'falls_under'},
+    {from: 'collectors', to: 'art_styles', indirect: {through: 'owned_by', via: 'falls_under', on: 'artworks'}},
+    {from: 'art_styles', to: 'collectors', indirect: {through: 'falls_under', via: 'owned_by', on: 'artworks'}},
+    {from: 'artists', to: 'collectors', indirect: {through: 'created_by', via: 'owned_by', on: 'artworks'}},
+    {from: 'collectors', to: 'artists', indirect: {through: 'owned_by', via: 'created_by', on: 'artworks'}},
+    {from: 'museums', to: 'art_periods', indirect: {through: 'belongs_to', via: 'included_in', on: 'artworks'}},
+    {from: 'art_periods', to: 'museums', indirect: {through: 'included_in', via: 'belongs_to', on: 'artworks'}},
+    {from: 'museums', to: 'art_styles', indirect: {through: 'belongs_to', via: 'falls_under', on: 'artworks'}},
+    {from: 'art_styles', to: 'museums', indirect: {through: 'Falls_under', via: 'belongs_to', on: 'artworks'}},
+    {from: 'museums', to: 'collectors', indirect: {through: 'belongs_to', via: 'owned_by', on: 'artworks'}},
+    {from: 'collectors', to: 'museums', indirect: {through: 'owned_by', via: 'belongs_to', on: 'artworks'}},
+    {from: 'art_periods', to: 'art_styles', indirect: {through: 'included_in', via: 'falls_under', on: 'artworks'}},
+    {from: 'art_styles', to: 'art_periods', indirect: {through: 'falls_under', via: 'included_in', on: 'artworks'}},
+    {from: 'art_periods', to: 'collectors', indirect: {through: 'included_in', via: 'owned_by', on: 'artworks'}},
+    {from: 'collectors', to: 'art_periods', indirect: {through: 'owned_by', via: 'included_in', on: 'artworks'}},
+    ];
 
-        let stmt = db.prepare(`INSERT INTO ${tableName} VALUES (?, ?)`);
-        console.log("id",id,"relatedId",relatedId);
-        stmt.run(id, relatedId);
+const updateRelation = (srcTable, targetTable, srcId, targetId,relation) => {
+    let stmt;
+    const srcColumn = `${removeTrailingS(srcTable)}_id`;  // e.g., "artist_id" or "artwork_id"
+    const targetColumn = `${removeTrailingS(targetTable)}_id`;  // e.g., "artist_id" or "artwork_id"
     
+    if (Array.isArray(targetId)) {
+        targetId.forEach(id => {
+            console.log(`INSERT INTO ${relation} (${srcColumn}, ${targetColumn}) VALUES (${srcId}, ${id})`);
+            stmt = db.prepare(`INSERT INTO ${relation} (${srcColumn}, ${targetColumn}) VALUES (?, ?)`);
+            stmt.run(srcId, id);
+        });
+    } else {
+        console.log(`INSERT INTO ${relation} (${srcColumn}, ${targetColumn}) VALUES (${srcId}, ${targetId})`);
+        stmt = db.prepare(`INSERT INTO ${relation} (${srcColumn}, ${targetColumn}) VALUES (?, ?)`);
+        stmt.run(srcId, targetId);
+    }
 };
+
+
 
 
 function getEntitiesWithMostRelations(entity1, entity2, relationTable, limit, res) {

@@ -26,6 +26,8 @@ function ModifyTable({ table, label }) {
                 console.error("There was an error!", error);
             });
     };
+    
+    
 
 
     const handleChangePage = (event, newPage) => {
@@ -87,7 +89,8 @@ function ModifyTable({ table, label }) {
         <div>
             <Box display="flex" justifyContent="flex-end" alignItems="center" mb={3}>
                 <Box ml={2}>
-                    <CreateDialog selected={selected} table={table} onCreate={load(table)} />
+                <CreateDialog selected={selected} table={table} onCreate={() => load(table)} />
+
                 </Box>
                 <Box ml={2}>
                     <DeleteDialog selected={selected} onDelete={handleDelete }table={table} />
