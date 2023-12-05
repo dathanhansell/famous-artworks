@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './Home.css';
 import { FormControl, Select, MenuItem, InputLabel, Grid, Button } from '@material-ui/core';
-import { loadSortedData, loadWithMost, getTotalCount,loadAvg,getYoungestArtist } from '../dbOperations';
+import { loadSortedData, loadWithMost, getTotalCount,loadAvg,loadMuseumsByArtPeriod,getLowestValue,getMostCommonValue } from '../dbOperations';
 
 function HomePage() {
     const [recentArtists, setRecentArtists] = useState([]);
@@ -12,8 +12,11 @@ function HomePage() {
     const [artistCount, setArtistCount] = useState([]);
     const [youngestArtist, setYoungestArtist] = useState([]);
     const [table2table1Avg, setMuseumAvg] = useState([]);
-    const [table1, setTable1] = useState("");
-    const [table2, setTable2] = useState("");
+    const [museumsWithRenaissanceArt, setMuseumsWithRenaissanceArt] = useState([]);
+    const [table1, setTable1] = useState("artists");
+    const [table2, setTable2] = useState("artworks");
+    const [bd, setBd] = useState("");
+    const [medium, setMedium] = useState("");
     const handleChangeTable1 = (event) => {
         setTable1(event.target.value);
     };
@@ -23,15 +26,20 @@ function HomePage() {
     };
 
     const tables = ["artists", "artworks", "museums", "art_periods", "art_styles", "collectors"];
-
+    const toUp = (str) =>{
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
     useEffect(() => {
         // Fetch the last 5 artists added
         loadSortedData('artists', setRecentArtists, 'id', 'DESC', 5);
         loadWithMost(table1, table2, setMuseumsWithCollectors, 5);
+        loadMuseumsByArtPeriod(1, setMuseumsWithRenaissanceArt); 
         getTotalCount('artworks', setArtworkCount);
         getTotalCount('artists', setArtistCount);
         loadAvg(table1, table2, setMuseumAvg);
-        getYoungestArtist(setYoungestArtist);
+        getLowestValue(setYoungestArtist,"birthdate","artists");
+        getMostCommonValue(setBd,'birthdate','artists');
+        getMostCommonValue(setMedium,'medium','artworks');
     }, [table1, table2]);
 
     return (
@@ -58,7 +66,7 @@ function HomePage() {
                                 <InputLabel>Table</InputLabel>
                                 <Select value={table1} onChange={handleChangeTable1}>
                                     {tables.filter(table => table !== table2).map(table => (
-                                        <MenuItem key={table} value={table}>{table.charAt(0).toUpperCase() + table.slice(1)}</MenuItem>
+                                        <MenuItem key={table} value={table}>{toUp(table)}</MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
@@ -68,7 +76,7 @@ function HomePage() {
                                 <InputLabel>Table</InputLabel>
                                 <Select value={table2} onChange={handleChangeTable2}>
                                     {tables.filter(table => table !== table1).map(table => (
-                                        <MenuItem key={table} value={table}>{table.charAt(0).toUpperCase() + table.slice(1)}</MenuItem>
+                                        <MenuItem key={table} value={table}>{toUp(table)}</MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
@@ -86,7 +94,21 @@ function HomePage() {
                     </ul>
                 </div>
                 <div className="home__grid__item">
-                    <h2>{table1} Sorted by Most {table2}</h2>
+                    <h2>Most Common Medium</h2>
+                    <ul>
+                        <li>{medium}</li>
+                    </ul>
+                </div>
+                <div className="home__grid__item">
+            <h2>Museums with Renaissance Art Sorted by Location DESC</h2>
+            <ul>
+                {museumsWithRenaissanceArt && museumsWithRenaissanceArt.map((museum) => (
+                    <li key={museum.id}>{museum.name} - {museum.location}</li>
+                ))}
+            </ul>
+        </div>
+                <div className="home__grid__item">
+                    <h2>{toUp(table1)} Sorted by Most {toUp(table2)}</h2>
                     <ul>
                         {table1WithMosttable2 && table1WithMosttable2.map((museum, index) => (
                             <li key={index}>{museum.name} - {museum.count} {table2}</li>
@@ -101,7 +123,7 @@ function HomePage() {
                     </ul>
                 </div>
                 <div className="home__grid__item">
-                    <h2>Average   {table2} related to {table1}</h2>
+                    <h2>Average   {toUp(table2)} related to {toUp(table1)}</h2>
                     <ul>
                         <li>{table2table1Avg.average} {table2}</li>
                     </ul>
@@ -112,10 +134,15 @@ function HomePage() {
                         <li>{youngestArtist.name} {youngestArtist.birthdate}</li>
                     </ul>
                 </div>
+                <div className="home__grid__item">
+                    <h2>Most Common Birthdate</h2>
+                    <ul>
+                        <li>{bd}</li>
+                    </ul>
+                </div>
 
-
-            </div>
-        </div>
+            </div>          
+        </div>  
     );
 }
 

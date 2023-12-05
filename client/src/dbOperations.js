@@ -72,6 +72,21 @@ export const loadSpecificData = (table, setItems, id = '') => {
             console.error("There was an error!", error);
         });
 };
+export const loadMuseumsByArtPeriod = (artPeriodId, setItems, sort='location', direction='DESC', limit=5) => {
+    if ([artPeriodId, setItems, sort, direction, limit].includes(undefined)) {
+        console.warn("One or more parameters are undefined");
+        return;
+    }
+    axios.get(`http://localhost:3001/museums/art_periods/1?sort=location&direction=DESC&limit=5`)
+    .then(response => {
+       
+        setItems(response.data);
+    })
+    .catch(error => {
+        console.error(`Error fetching museums by art period: ${error}`);
+    });
+}
+
 export const loadData = (table, setItems) => {
     if ([table, setItems].includes(undefined)) {
         console.warn("One or more parameters are undefined");
@@ -104,16 +119,24 @@ export const loadRelations = (table1, table2, setItems,value) => {
         });
 };
 
-export const getYoungestArtist=(setArtist)=> {
-    axios.get('http://localhost:3001/artists?sort=birthdate&limit=1&direction=DESC' )
+export const getLowestValue=(setItem,attr,table)=> {
+    axios.get(`http://localhost:3001/${table}?sort=${attr}&limit=1&direction=DESC` )
     .then(response => {
-        setArtist(response.data.data[0]);
+        setItem(response.data.data[0]);
     })
     .catch(error => {
         console.error("Error fetching oldest artist:", error);
     });
 }
-
+export const getMostCommonValue=(setItem,attr,table)=> {
+    axios.get(`http://localhost:3001/${table}/most_common/${attr}` )
+    .then(response => {
+        setItem(response.data[attr]);
+    })
+    .catch(error => {
+        console.error("Error fetching oldest artist:", error);
+    });
+}
 
 export const createData = (table, dataToSend, onCreate) => {
     if ([table, dataToSend].includes(undefined)) {

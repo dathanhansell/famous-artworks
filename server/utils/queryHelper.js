@@ -10,19 +10,26 @@ const relations = {
 };
 
 
-const joinTwoTables = (primaryTable, secondaryTable, relationTable,  primaryId) => {
+const joinTwoTables = (primaryTable, secondaryTable, relationTable, primaryId, sort, order, limit) => {
     return new Promise((resolve, reject) => {
         let primaryKey = tableToID(primaryTable);
         let secondaryKey = tableToID(secondaryTable);
-        const query = `
+        let query = `
             SELECT ${primaryTable}.*
             FROM ${primaryTable}
             INNER JOIN ${relationTable} ON ${primaryTable}.id = ${relationTable}.${primaryKey}
             WHERE ${relationTable}.${secondaryKey} = ?
         `;
-        //console.log(query);
-        //console.log("primaryId",primaryId);
-        db.all(query, primaryId, (err, results) => {
+console.log(sort,order)
+        if(sort&& order) {
+            query += ` ORDER BY ${primaryTable}.${sort} ${order.toUpperCase()}`;
+        }
+
+        if(limit) {
+            query += ` LIMIT ?`;
+        }
+
+        db.all(query, limit ? [primaryId, limit] : [primaryId], (err, results) => {
             if (err) {
                 reject(err);
             }
@@ -31,15 +38,13 @@ const joinTwoTables = (primaryTable, secondaryTable, relationTable,  primaryId) 
     });
 };
 
-
-
-const joinThreeTables = (primaryTable, secondaryTable, middleTable, relationTable1, relationTable2, secondaryId) => {
+const joinThreeTables = (primaryTable, secondaryTable, middleTable, relationTable1, relationTable2, secondaryId, sort, order, limit) => {
     return new Promise((resolve, reject) => {
         let primaryKey1 = tableToID(primaryTable);
         let middleKey = tableToID(middleTable);
         let secondaryKey = tableToID(secondaryTable);
 
-        const query = `
+        let query = `
             SELECT ${primaryTable}.*
             FROM ${primaryTable}
             JOIN ${relationTable1} ON ${primaryTable}.id = ${relationTable1}.${primaryKey1}
@@ -47,9 +52,17 @@ const joinThreeTables = (primaryTable, secondaryTable, middleTable, relationTabl
             WHERE ${relationTable2}.${secondaryKey} = ?
             GROUP BY ${primaryTable}.id
         `;
-        //console.log(query);
-        //console.log(secondaryId);
-        db.all(query, [secondaryId], (err, results) => {
+        console.log("sort",sort,"order",order);
+        if(sort&&order) {
+            
+            query += ` ORDER BY ${primaryTable}.${sort} ${order.toUpperCase()}`;
+        }
+
+        if(limit) {
+            query += ` LIMIT ?`;
+        }
+
+        db.all(query, limit ? [secondaryId, limit] : [secondaryId], (err, results) => {
             if (err) {
                 reject(err);
             }
@@ -83,21 +96,17 @@ function getEntitiesWithMostRelationsIndirect(entity1, entity2, middleTable, rel
 
 
 
-const getItemsByParameter = async (req, res,table1, table2, relation1, relation2,table3) => {
+const getItemsByParameter = async (req, res, table1, table2, relation1, relation2, table3) => {
     console.log(`Parameters: table1=${table1}, table2=${table2}, relation1=${relation1}, relation2=${relation2}, table3=${table3}`);
     const paramId = req.params[`${table2}Id`];
-    console.log(`Request params: ${JSON.stringify(req.params)}`);
-    console.log(`Computed paramId: ${paramId}`);
-    console.log(`Request path: ${req.path}`);
-    console.log(`Request method: ${req.method}`);
-    console.log(`getItemsByParameter called with parameters: ${table1}, ${table2}, ${relation1}, ${relation2 || 'none'}, ${table3 || 'none'}`);
-
+    const { sort,direction,limit } = req.query;
+    console.log("sort",sort,"order",direction);
     try {
         let items;
         if (relation2) {
-            items = await joinThreeTables(table1, table2,table3, relation1, relation2,paramId);
+            items = await joinThreeTables(table1, table2, table3, relation1, relation2, paramId, sort, direction, limit);
         } else {
-            items = await joinTwoTables(table1, table2, relation1, paramId);
+            items = await joinTwoTables(table1, table2, relation1, paramId, sort, direction, limit);
         }
         console.log(`Items: ${JSON.stringify(items)}`);
         res.send(items);
@@ -269,6 +278,24 @@ function tableToID(str) {
 
 
 
+const getMostCommonValue=(table,req, res)=> {
+    const { columnName } = req.params;
+
+    const query = `
+        SELECT ${columnName}, COUNT(${columnName}) AS count
+        FROM ${table}
+        WHERE ${columnName} IS NOT NULL AND ${columnName} != ''
+        GROUP BY ${columnName}
+        ORDER BY count DESC
+        LIMIT 1
+    `;
+    db.get(query, (err, row) => {
+        if (err) {
+            throw err;
+        }
+        res.send(row);
+    });
+}
 const getRecordsLike = async (tableName, columnName, req, res) => {
     let searchText = req.query.text;
     console.log('searchText', searchText);
@@ -314,7 +341,7 @@ function createRouter(tableName, fields) {
     router.get(`/${tableName}/api/search`, (req, res) => getRecordsLike(tableName, fields[0],req, res));
     router.get(`/${tableName}/api/count`, (req, res) => getTotalCount(tableName, res));
     router.get(`/${tableName}`, (req, res) => getRecords(tableName, req.query.page, req.query.limit, req.query.sort, req.query.direction, res));
-    
+    router.get(`/${tableName}/most_common/:columnName`, (req, res) => getMostCommonValue(tableName,req,res));
     router.post(`/${tableName}`, (req, res) => createRecord(tableName, getFields(req, fields), req, res));
     router.delete(`/${tableName}/:id`, (req, res) => deleteRecord(tableName, req.params.id, req, res));
     router.put(`/${tableName}/:id`, (req, res) => updateRecord(tableName, getFields(req, fields), req.params.id, req, res));
@@ -346,5 +373,6 @@ module.exports = {
     getEntitiesWithMostRelations,
     getTotalCount,
     getEntitiesWithAverageRelations,
-    getEntitiesWithMostRelationsIndirect
+    getEntitiesWithMostRelationsIndirect,
+    getMostCommonValue
 };
