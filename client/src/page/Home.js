@@ -47,7 +47,7 @@ function HomePage() {
             <h1 className="home__title">Famous Artworks</h1>
             <div className="home__grid">
                 <div className="home__grid__item">
-                    <h2>Scrum Operations</h2>
+                    <h2>CRUD Operations</h2>
                     <ul>
                         <li><Link to="/db">Add, Update, Remove All Data</Link></li>
                     </ul>

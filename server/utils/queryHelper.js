@@ -8,7 +8,38 @@ const relations = {
     "collectors": ["owned_by"],
     "art_styles": ["falls_under"],
 };
-
+const relations_map = [
+    {from: 'artworks', to: 'artists', through: 'created_by'},
+    {from: 'artists', to: 'artworks', through: 'created_by'},
+    {from: 'artworks', to: 'museums', through: 'belongs_to'},
+    {from: 'collectors', to: 'artworks', through: 'owned_by'},
+    {from: 'art_periods', to: 'artists', through: 'lived_in'},
+    {from: 'artworks', to: 'art_periods', through: 'included_in'},
+    {from: 'artists', to: 'art_styles', indirect: {through: 'created_by', via: 'falls_under', on: 'artworks'}},
+    {from: 'art_styles', to: 'artists', indirect: {through: 'falls_under', via: 'created_by', on: 'artworks'}},
+    {from: 'artworks', to: 'collectors', through: 'owned_by'},
+    {from: 'artworks', to: 'art_styles', through: 'falls_under'},
+    {from: 'artists', to: 'art_periods', through: 'lived_in'},
+    {from: 'museums', to: 'artworks', through: 'belongs_to'},
+    {from: 'art_periods', to: 'artworks', through: 'included_in'},
+    {from: 'artists', to: 'museums', indirect: {through: 'created_by', via: 'belongs_to', on: 'artworks'}},
+    {from: 'museums', to: 'artists', indirect: {through: 'belongs_to', via: 'created_by', on: 'artworks'}},
+    {from: 'art_styles', to: 'artworks', through: 'falls_under'},
+    {from: 'collectors', to: 'art_styles', indirect: {through: 'owned_by', via: 'falls_under', on: 'artworks'}},
+    {from: 'art_styles', to: 'collectors', indirect: {through: 'falls_under', via: 'owned_by', on: 'artworks'}},
+    {from: 'artists', to: 'collectors', indirect: {through: 'created_by', via: 'owned_by', on: 'artworks'}},
+    {from: 'collectors', to: 'artists', indirect: {through: 'owned_by', via: 'created_by', on: 'artworks'}},
+    {from: 'museums', to: 'art_periods', indirect: {through: 'belongs_to', via: 'included_in', on: 'artworks'}},
+    {from: 'art_periods', to: 'museums', indirect: {through: 'included_in', via: 'belongs_to', on: 'artworks'}},
+    {from: 'museums', to: 'art_styles', indirect: {through: 'belongs_to', via: 'falls_under', on: 'artworks'}},
+    {from: 'art_styles', to: 'museums', indirect: {through: 'Falls_under', via: 'belongs_to', on: 'artworks'}},
+    {from: 'museums', to: 'collectors', indirect: {through: 'belongs_to', via: 'owned_by', on: 'artworks'}},
+    {from: 'collectors', to: 'museums', indirect: {through: 'owned_by', via: 'belongs_to', on: 'artworks'}},
+    {from: 'art_periods', to: 'art_styles', indirect: {through: 'included_in', via: 'falls_under', on: 'artworks'}},
+    {from: 'art_styles', to: 'art_periods', indirect: {through: 'falls_under', via: 'included_in', on: 'artworks'}},
+    {from: 'art_periods', to: 'collectors', indirect: {through: 'included_in', via: 'owned_by', on: 'artworks'}},
+    {from: 'collectors', to: 'art_periods', indirect: {through: 'owned_by', via: 'included_in', on: 'artworks'}},
+    ];
 
 const joinTwoTables = (primaryTable, secondaryTable, relationTable, primaryId, sort, order, limit) => {
     return new Promise((resolve, reject) => {
@@ -91,10 +122,7 @@ function getEntitiesWithMostRelationsIndirect(entity1, entity2, middleTable, rel
         }
         res.send(rows);
     });
-}
-
-
-
+};
 
 const getItemsByParameter = async (req, res, table1, table2, relation1, relation2, table3) => {
     console.log(`Parameters: table1=${table1}, table2=${table2}, relation1=${relation1}, relation2=${relation2}, table3=${table3}`);
@@ -117,8 +145,6 @@ const getItemsByParameter = async (req, res, table1, table2, relation1, relation
     }
 };
 
-
-
 const deleteRecord = (tableName, id, req, res) => {
 
     let stmt = db.prepare(`DELETE FROM ${tableName} WHERE id = ?`);
@@ -130,6 +156,7 @@ const deleteRecord = (tableName, id, req, res) => {
         res.send("Record deleted successfully!");
     });
 };
+
 const deleteRelation = (tableName,srcTable, id) => {
     let stmt = db.prepare(`DELETE FROM ${tableName} WHERE ${tableToID(srcTable)} = ?`);
     stmt.run(id, function(err) {
@@ -173,6 +200,7 @@ const updateRecord = (tableName, fields, id, req, res) => {
         res.send("Data updated successfully!");
     });
 };
+
 const createRecord = (tableName, fields, req, res) => {
     console.log("fields",fields);
     const fieldNames = Object.keys(fields);
@@ -206,39 +234,6 @@ const createRecord = (tableName, fields, req, res) => {
     });
 };
 
-const relations_map = [
-    {from: 'artworks', to: 'artists', through: 'created_by'},
-    {from: 'artists', to: 'artworks', through: 'created_by'},
-    {from: 'artworks', to: 'museums', through: 'belongs_to'},
-    {from: 'collectors', to: 'artworks', through: 'owned_by'},
-    {from: 'art_periods', to: 'artists', through: 'lived_in'},
-    {from: 'artworks', to: 'art_periods', through: 'included_in'},
-    {from: 'artists', to: 'art_styles', indirect: {through: 'created_by', via: 'falls_under', on: 'artworks'}},
-    {from: 'art_styles', to: 'artists', indirect: {through: 'falls_under', via: 'created_by', on: 'artworks'}},
-    {from: 'artworks', to: 'collectors', through: 'owned_by'},
-    {from: 'artworks', to: 'art_styles', through: 'falls_under'},
-    {from: 'artists', to: 'art_periods', through: 'lived_in'},
-    {from: 'museums', to: 'artworks', through: 'belongs_to'},
-    {from: 'art_periods', to: 'artworks', through: 'included_in'},
-    {from: 'artists', to: 'museums', indirect: {through: 'created_by', via: 'belongs_to', on: 'artworks'}},
-    {from: 'museums', to: 'artists', indirect: {through: 'belongs_to', via: 'created_by', on: 'artworks'}},
-    {from: 'art_styles', to: 'artworks', through: 'falls_under'},
-    {from: 'collectors', to: 'art_styles', indirect: {through: 'owned_by', via: 'falls_under', on: 'artworks'}},
-    {from: 'art_styles', to: 'collectors', indirect: {through: 'falls_under', via: 'owned_by', on: 'artworks'}},
-    {from: 'artists', to: 'collectors', indirect: {through: 'created_by', via: 'owned_by', on: 'artworks'}},
-    {from: 'collectors', to: 'artists', indirect: {through: 'owned_by', via: 'created_by', on: 'artworks'}},
-    {from: 'museums', to: 'art_periods', indirect: {through: 'belongs_to', via: 'included_in', on: 'artworks'}},
-    {from: 'art_periods', to: 'museums', indirect: {through: 'included_in', via: 'belongs_to', on: 'artworks'}},
-    {from: 'museums', to: 'art_styles', indirect: {through: 'belongs_to', via: 'falls_under', on: 'artworks'}},
-    {from: 'art_styles', to: 'museums', indirect: {through: 'Falls_under', via: 'belongs_to', on: 'artworks'}},
-    {from: 'museums', to: 'collectors', indirect: {through: 'belongs_to', via: 'owned_by', on: 'artworks'}},
-    {from: 'collectors', to: 'museums', indirect: {through: 'owned_by', via: 'belongs_to', on: 'artworks'}},
-    {from: 'art_periods', to: 'art_styles', indirect: {through: 'included_in', via: 'falls_under', on: 'artworks'}},
-    {from: 'art_styles', to: 'art_periods', indirect: {through: 'falls_under', via: 'included_in', on: 'artworks'}},
-    {from: 'art_periods', to: 'collectors', indirect: {through: 'included_in', via: 'owned_by', on: 'artworks'}},
-    {from: 'collectors', to: 'art_periods', indirect: {through: 'owned_by', via: 'included_in', on: 'artworks'}},
-    ];
-
 const updateRelation = (srcTable, targetTable, srcId, targetId,relation) => {
     let stmt;
     const srcColumn = `${removeTrailingS(srcTable)}_id`;  // e.g., "artist_id" or "artwork_id"
@@ -256,9 +251,6 @@ const updateRelation = (srcTable, targetTable, srcId, targetId,relation) => {
         stmt.run(srcId, targetId);
     }
 };
-
-
-
 
 function getEntitiesWithMostRelations(entity1, entity2, relationTable, limit, res) {
     const query = `
@@ -280,6 +272,7 @@ function getEntitiesWithMostRelations(entity1, entity2, relationTable, limit, re
         res.send(rows);
     });
 }
+
 function getEntitiesWithAverageRelations(entity1, entity2, relationTable, req, res) {
     const query = `
         SELECT AVG(artwork_count) AS average
@@ -301,19 +294,16 @@ function getEntitiesWithAverageRelations(entity1, entity2, relationTable, req, r
     });
 }
 
-
-
-
-
-
-
 function removeTrailingS(str) {
     console.log("removetrailings",str.endsWith('s') ? str.slice(0, -1) : str);
     return str.endsWith('s') ? str.slice(0, -1) : str;
 };
+
 function tableToID(str) {
     return removeTrailingS(str) + '_id';
-};const getRecords = (tableName, page=0, limit, sort, direction, res) => {
+};
+
+const getRecords = (tableName, page=0, limit, sort, direction, res) => {
     if (!sort) sort = 'id'; // Default sort column
     if (!direction) direction = 'ASC'; // Default sort direction
 
@@ -342,10 +332,6 @@ function tableToID(str) {
     }
 };
 
-
-
-
-
 const getMostCommonValue=(table,req, res)=> {
     const { columnName } = req.params;
 
@@ -363,7 +349,7 @@ const getMostCommonValue=(table,req, res)=> {
         }
         res.send(row);
     });
-}
+};
 const getRecordsLike = async (tableName, columnName, req, res) => {
     let searchText = req.query.text;
     console.log('searchText', searchText);
@@ -385,7 +371,7 @@ const getRecordWithID = (tableName, id, res) => {
         }
         res.send(row);
     });
-}
+};
 function getTotalCount(tableName, res) {
     db.get(`SELECT COUNT(*) as count FROM ${tableName}`, (err, row) => {
         if (err) {
@@ -395,9 +381,7 @@ function getTotalCount(tableName, res) {
             res.json({ count: row.count });
         }
     });
-}
-
-
+};
 function createRouter(tableName, fields) {
     const router = express.Router();
     router.use((req, res, next) => {
@@ -423,9 +407,7 @@ function createRouter(tableName, fields) {
     }
 
     return router;
-}
-
-
+};
 
 module.exports = {
     joinTwoTables,
